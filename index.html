@@ -116,7 +116,10 @@
                                 <option value="Tingkatan 4">Tingkatan 4</option>
                                 <option value="Tingkatan 5">Tingkatan 5</option>
                                 <option value="Tingkatan 6">Tingkatan 6</option>
-                                <option value="PPKI">PPKI</option>
+                                <option value="PPKI 1">PPKI 1</option>
+                                <option value="PPKI 2">PPKI 2</option>
+                                <option value="PPKI 3">PPKI 3</option>
+                                <option value="PPKI 4">PPKI 4</option>
                             </select>
                         </div>
 
@@ -375,7 +378,8 @@
             { tingkatan: "Tingkatan 1", kelas: "1 AMANAH", nama: "SITI NURHALIZA BINTI AMIR", email: "m-87654321@moe-dl.edu.my" },
             { tingkatan: "Tingkatan 3", kelas: "3 CEKAL", nama: "MUHAMMAD HAZIM BIN ZULKIFLI", email: "m-11223344@moe-dl.edu.my" },
             { tingkatan: "Tingkatan 5", kelas: "5 STEM 1", nama: "NUR AISYAH BINTI KHALID", email: "m-55667788@moe-dl.edu.my" },
-            { tingkatan: "PPKI", kelas: "PPKI ARIF", nama: "MUHAMMAD ADAM BIN ROSLI", email: "m-99887766@moe-dl.edu.my" }
+            { tingkatan: "PPKI 1", kelas: "PPKI ARIF 1", nama: "MUHAMMAD ADAM BIN ROSLI", email: "m-99887766@moe-dl.edu.my" },
+            { tingkatan: "PPKI 2", kelas: "PPKI ARIF 2", nama: "NUR AMIRA BINTI ZAKARIA", email: "m-44556677@moe-dl.edu.my" }
         ];
 
         let aduanList = JSON.parse(localStorage.getItem('esemak_aduan_list')) || [
@@ -447,7 +451,7 @@
             }
         }
 
-        // Fungsi kemaskini dropdown kelas secara dinamik mengikut Tingkatan / PPKI
+        // Fungsi kemaskini dropdown kelas secara dinamik mengikut Tingkatan / PPKI 1-4
         function kemaskiniDropdownKelas() {
             const tingkatanPilihan = document.getElementById('selectTingkatan').value.trim();
             const selectKelas = document.getElementById('selectKelas');
