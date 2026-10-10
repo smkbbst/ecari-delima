@@ -286,6 +286,7 @@
             </div>
 
             <div id="adminDashboard" class="hidden space-y-6">
+                <!-- Header Dashboard -->
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
                         <h2 class="text-xl font-bold text-delima-blue">Portal Analisis & Pengurusan Aduan Admin DELIMa</h2>
@@ -306,6 +307,7 @@
                     </div>
                 </div>
 
+                <!-- KPI / STATISTIK UTAMA -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600">
                         <p class="text-xs font-semibold text-gray-500 uppercase">Jumlah Aduan</p>
@@ -325,6 +327,25 @@
                     </div>
                 </div>
 
+                <!-- ANALISIS BAHARU: KAD RUMUSAN ISU UTAMA SEPANJANG TAHUN -->
+                <div class="bg-gradient-to-r from-delima-blue to-delima-lightBlue rounded-xl shadow-md p-6 text-white flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-3xl text-delima-accent shrink-0">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-delima-accent font-semibold">Analisis Utama Tahunan</p>
+                            <h3 class="text-xl font-bold">Isu Paling Banyak Dilaporkan</h3>
+                            <p class="text-xs text-gray-200 mt-0.5">Berdasarkan keseluruhan rekod aduan murid di Google Sheets</p>
+                        </div>
+                    </div>
+                    <div class="bg-white/10 border border-white/20 rounded-lg p-4 text-center md:text-right w-full md:w-auto shrink-0">
+                        <p class="text-lg font-extrabold text-delima-accent uppercase" id="topIsuNama">Tiada Data</p>
+                        <p class="text-xs text-gray-200" id="topIsuStat">0 Kes (0%)</p>
+                    </div>
+                </div>
+
+                <!-- CARTA ANALISIS -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center space-x-2">
@@ -338,14 +359,15 @@
                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center space-x-2">
                             <i class="fa-solid fa-chart-bar text-delima-lightBlue"></i>
-                            <span>Status Kemajuan Aduan</span>
+                            <span>Kedudukan Kekerapan Isu (Ranking Isu Tahunan)</span>
                         </h3>
                         <div class="relative h-64">
-                            <canvas id="chartStatus"></canvas>
+                            <canvas id="chartRankIsu"></canvas>
                         </div>
                     </div>
                 </div>
 
+                <!-- JADUAL REKOD ADUAN -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 space-y-4">
                     <h3 class="text-md font-bold text-delima-blue border-b pb-2">Senarai Rekod Aduan Murid</h3>
                     <div class="overflow-x-auto">
@@ -357,7 +379,7 @@
                                     <th class="py-3 px-4">Jenis Isu</th>
                                     <th class="py-3 px-4">Penerangan</th>
                                     <th class="py-3 px-4">Status</th>
-                                    <th class="py-3 px-4">Maklum Balas Admin</th>
+                                    <th class="py-3 px-4 min-w-[200px]">Maklum Balas Admin</th>
                                     <th class="py-3 px-4 text-center">Tindakan</th>
                                 </tr>
                             </thead>
@@ -409,7 +431,7 @@
         let isAdminLoggedIn = false;
         let isMaintenanceMode = false;
         let chartIsuInstance = null;
-        let chartStatusInstance = null;
+        let chartRankIsuInstance = null;
 
         // Auto Fetch Data Murid Daripada Google Sheets Apabila Halaman Dimuatkan
         window.addEventListener('DOMContentLoaded', () => {
@@ -549,7 +571,7 @@
             });
         }
 
-        // LOGIK BORANG ADUAN (DIKEMASKINI DENGAN KELAS & HANTAR KE GOOGLE SHEETS)
+        // LOGIK BORANG ADUAN
         async function hantarAduan() {
             const nama = document.getElementById('aduanNama').value.trim();
             const kelas = document.getElementById('aduanKelas').value.trim();
@@ -611,6 +633,7 @@
             msgSuccess.classList.remove('hidden');
         }
 
+        // SEMAKAN STATUS ADUAN (PAPAR MAKLUM BALAS APABILA STATUS SELESAI SAHAJA)
         function semakStatusAduan() {
             const icInput = document.getElementById('semakIC').value.trim();
             const msgError = document.getElementById('msgStatusError');
@@ -635,6 +658,16 @@
                 if(item.status === 'Sedang Disemak') badgeColor = "bg-blue-100 text-blue-800 border-blue-300";
                 if(item.status === 'Selesai') badgeColor = "bg-green-100 text-green-800 border-green-300";
 
+                let maklumBalasHTML = '';
+                if (item.status === 'Selesai') {
+                    maklumBalasHTML = `
+                        <div class="bg-white p-3 rounded-lg border text-sm mt-2">
+                            <p class="text-xs text-gray-500 font-semibold">Maklum Balas Admin DELIMa:</p>
+                            <p class="text-gray-800 font-medium mt-1">${item.maklumBalas || "Aduan telah diselesaikan."}</p>
+                        </div>
+                    `;
+                }
+
                 const card = document.createElement('div');
                 card.className = "bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-3";
                 card.innerHTML = `
@@ -655,10 +688,7 @@
                             <p class="font-medium text-gray-700">${item.masalah}</p>
                         </div>
                     </div>
-                    <div class="bg-white p-3 rounded-lg border text-sm mt-2">
-                        <p class="text-xs text-gray-500 font-semibold">Maklum Balas Admin DELIMa:</p>
-                        <p class="text-gray-800 font-medium mt-1">${item.maklumBalas || "Belum ada maklum balas. Aduan anda sedang diproses."}</p>
-                    </div>
+                    ${maklumBalasHTML}
                 `;
                 hasilContainer.appendChild(card);
             });
@@ -721,7 +751,7 @@
                         </select>
                     </td>
                     <td class="py-3 px-4">
-                        <input type="text" value="${item.maklumBalas || ''}" placeholder="Taip maklum balas..." onblur="kemaskiniStatusAdmin(${index}, 'maklumBalas', this.value)" class="text-xs w-full border border-gray-200 rounded p-1.5 focus:border-delima-lightBlue outline-none">
+                        <textarea rows="2" placeholder="Taip maklum balas..." onblur="kemaskiniStatusAdmin(${index}, 'maklumBalas', this.value)" class="text-xs w-full border border-gray-200 rounded p-1.5 focus:border-delima-lightBlue outline-none resize-y">${item.maklumBalas || ''}</textarea>
                     </td>
                     <td class="py-3 px-4 text-center">
                         <button onclick="padamAduan(${index})" class="text-red-500 hover:text-red-700 text-xs font-bold">
@@ -732,7 +762,7 @@
                 tbody.appendChild(tr);
             });
 
-            renderCharts(baru, disemak, selesai);
+            renderCharts();
         }
 
         function kemaskiniStatusAdmin(index, field, value) {
@@ -749,7 +779,9 @@
             }
         }
 
-        function renderCharts(baru, disemak, selesai) {
+        // LOGIK ANALISIS & CARTA TAHUNAN BAHARU
+        function renderCharts() {
+            const totalAduan = aduanList.length;
             const countIsu = {
                 "Reset Kata Laluan": 0,
                 "Tiada ID DELIMa": 0,
@@ -762,6 +794,21 @@
                 else countIsu["Lain-lain"]++;
             });
 
+            // Cari Isu Terbanyak (Top Issue)
+            let topIsu = "Tiada Data";
+            let maxCount = 0;
+            for (const [isu, count] of Object.entries(countIsu)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topIsu = isu;
+                }
+            }
+
+            const peratusTop = totalAduan > 0 ? ((maxCount / totalAduan) * 100).toFixed(1) : 0;
+            document.getElementById('topIsuNama').textContent = topIsu;
+            document.getElementById('topIsuStat').textContent = `${maxCount} Kes (${peratusTop}% daripada keseluruhan)`;
+
+            // 1. Carta Pai Pecahan Isu
             if (chartIsuInstance) chartIsuInstance.destroy();
             const ctxIsu = document.getElementById('chartIsu').getContext('2d');
             chartIsuInstance = new Chart(ctxIsu, {
@@ -776,22 +823,25 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            if (chartStatusInstance) chartStatusInstance.destroy();
-            const ctxStatus = document.getElementById('chartStatus').getContext('2d');
-            chartStatusInstance = new Chart(ctxStatus, {
+            // 2. Carta Bar Mendatar (Ranking Isu Tahunan)
+            if (chartRankIsuInstance) chartRankIsuInstance.destroy();
+            const ctxRank = document.getElementById('chartRankIsu').getContext('2d');
+            chartRankIsuInstance = new Chart(ctxRank, {
                 type: 'bar',
                 data: {
-                    labels: ['Baru', 'Sedang Disemak', 'Selesai'],
+                    labels: Object.keys(countIsu),
                     datasets: [{
-                        label: 'Jumlah Aduan',
-                        data: [baru, disemak, selesai],
-                        backgroundColor: ['#EAB308', '#6366F1', '#22C55E']
+                        label: 'Jumlah Kes Laporan',
+                        data: Object.values(countIsu),
+                        backgroundColor: '#002B66',
+                        borderRadius: 6
                     }]
                 },
                 options: { 
+                    indexAxis: 'y', // Memengetahkan carta dalam bentuk mendatar (Ranking)
                     responsive: true, 
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
                 }
             });
         }
