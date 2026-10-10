@@ -42,7 +42,7 @@
                 
                 <!-- Identiti Sekolah & Sistem -->
                 <div class="flex items-center space-x-3 text-center md:text-left">
-                    <img id="schoolBadge" src="https://imgbb.com/"><img src="https://i.ibb.co/9mjrBr8h/Logo-SMKBBST-removebg-preview.png" alt="Lencana SMK Bandar Baru Salak Tinggi" class="w-14 h-16 object-contain bg-white rounded p-1 shadow-sm">
+                    <img id="schoolBadge" src="https://i.ibb.co/9mjrBr8h/Logo-SMKBBST-removebg-preview.png" alt="Lencana SMK Bandar Baru Salak Tinggi" class="w-14 h-16 object-contain bg-white rounded p-1 shadow-sm">
                     <div>
                         <h2 id="schoolName" class="text-xs sm:text-sm tracking-wider uppercase font-semibold text-delima-accent">SMK BANDAR BARU SALAK TINGGI</h2>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">eSemak DELIMa</h1>
@@ -368,16 +368,6 @@
         // Masukkan URL Google Apps Script Web App anda di sini
         const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
 
-        // Pemetaan Kelas mengikut Tingkatan
-        const PEMETAAN_KELAS = {
-            "Tingkatan 1": ["1 AMANAH", "1 CEKAL", "1 IKHLAS", "1 JUJU", "1 MURNI"],
-            "Tingkatan 2": ["2 AMANAH", "2 CEKAL", "2 IKHLAS", "2 JUJU", "2 MURNI"],
-            "Tingkatan 3": ["3 AMANAH", "3 CEKAL", "3 IKHLAS", "3 JUJU", "3 MURNI"],
-            "Tingkatan 4": ["4 STEM 1", "4 STEM 2", "4 SAINS SOSIAL 1", "4 SAINS SOSIAL 2"],
-            "Tingkatan 5": ["5 STEM 1", "5 STEM 2", "5 SAINS SOSIAL 1", "5 SAINS SOSIAL 2"],
-            "Tingkatan 6": ["6 ATAS HUMANITI", "6 ATAS SAINS", "6 BAWAH HUMANITI", "6 BAWAH SAINS"]
-        };
-
         // Data Simpanan Sementara (Fallback/Mock)
         let dataMuridList = [
             { tingkatan: "Tingkatan 1", kelas: "1 AMANAH", nama: "AHMAD DANIAL BIN MOHD ROSLI", email: "m-12345678@moe-dl.edu.my" },
@@ -457,15 +447,30 @@
             }
         }
 
+        // Fungsi kemaskini dropdown kelas terus dari data Google Sheets (tanpa PEMETAAN_KELAS statik)
         function kemaskiniDropdownKelas() {
-            const tingkatan = document.getElementById('selectTingkatan').value;
+            const tingkatanPilihan = document.getElementById('selectTingkatan').value;
             const selectKelas = document.getElementById('selectKelas');
 
             selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
             selectKelas.value = "";
 
-            if (tingkatan && PEMETAAN_KELAS[tingkatan]) {
-                PEMETAAN_KELAS[tingkatan].forEach(kelas => {
+            if (!tingkatanPilihan) {
+                selectKelas.disabled = true;
+                selectKelas.innerHTML = '<option value="">-- Sila pilih tingkatan dahulu --</option>';
+                return;
+            }
+
+            // Ambil senarai kelas unik terus daripada data Google Sheets yang sepadan dengan tingkatan
+            const kelasUnik = [...new Set(
+                dataMuridList
+                    .filter(m => m.tingkatan && m.tingkatan.toLowerCase() === tingkatanPilihan.toLowerCase())
+                    .map(m => m.kelas)
+                    .filter(k => k && k.trim() !== "")
+            )].sort();
+
+            if (kelasUnik.length > 0) {
+                kelasUnik.forEach(kelas => {
                     const opt = document.createElement('option');
                     opt.value = kelas;
                     opt.textContent = kelas;
@@ -474,7 +479,7 @@
                 selectKelas.disabled = false;
             } else {
                 selectKelas.disabled = true;
-                selectKelas.innerHTML = '<option value="">-- Sila pilih tingkatan dahulu --</option>';
+                selectKelas.innerHTML = '<option value="">-- Tiada kelas dijumpai bagi tingkatan ini --</option>';
             }
         }
 
@@ -500,7 +505,7 @@
 
             // Carian padanan menggunakan 3 kriteria
             const hasil = dataMuridList.find(m => {
-                const padanTingkatan = m.tingkatan ? m.tingkatan === tingkatan : true;
+                const padanTingkatan = m.tingkatan ? m.tingkatan.toLowerCase() === tingkatan.toLowerCase() : true;
                 const padanKelas = m.kelas === kelas;
                 const padanNama = m.nama.toUpperCase().includes(namaInput.toUpperCase());
                 return padanTingkatan && padanKelas && padanNama;
@@ -563,7 +568,6 @@
                 maklumBalas: ""
             };
 
-            // Hantar ke Google Sheets jika URL wujud
             if (GOOGLE_SHEETS_SCRIPT_URL) {
                 try {
                     await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
@@ -577,7 +581,6 @@
                 }
             }
 
-            // Simpan ke LocalStorage
             aduanList.push(newAduan);
             localStorage.setItem('esemak_aduan_list', JSON.stringify(aduanList));
 
