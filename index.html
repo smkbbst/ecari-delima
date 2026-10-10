@@ -65,7 +65,7 @@
                     </button>
                     <button onclick="switchTab('admin')" id="btn-admin" class="nav-btn bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all flex items-center space-x-2 border border-delima-accent/30 text-delima-accent">
                         <i class="fa-solid fa-user-shield"></i>
-                        <span>Akses Admin DELIMa</span>
+                        <span>Portal Admin DELIMa</span>
                     </button>
                 </nav>
 
@@ -188,16 +188,25 @@
                 </div>
 
                 <form id="formAduan" onsubmit="event.preventDefault(); hantarAduan();" class="space-y-4">
+                    <!-- Nama Penuh -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Penuh <span class="text-red-500">*</span></label>
                         <input type="text" id="aduanNama" placeholder="Masukkan nama penuh" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none uppercase" required>
                     </div>
 
+                    <!-- Kelas -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Kelas <span class="text-red-500">*</span></label>
+                        <input type="text" id="aduanKelas" placeholder="Contoh: 1 AMANAH / PPKI ARIF 1" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none uppercase" required>
+                    </div>
+
+                    <!-- No. KP -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nombor Kad Pengenalan <span class="text-red-500">*</span></label>
                         <input type="text" id="aduanIC" placeholder="Contoh: 080102105544 (12 Digit tanpa dash -)" maxlength="12" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none" required>
                     </div>
 
+                    <!-- Pilihan Isu -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Pilihan Isu <span class="text-red-500">*</span></label>
                         <select id="aduanIsu" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none" required>
@@ -209,6 +218,7 @@
                         </select>
                     </div>
 
+                    <!-- Masalah -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nyatakan Masalah Anda <span class="text-red-500">*</span></label>
                         <textarea id="aduanMasalah" rows="4" placeholder="Terangkan perincian masalah anda..." class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none" required></textarea>
@@ -258,19 +268,19 @@
             </div>
         </section>
 
-        <!-- 4. ANALISIS ADUAN KHUSUS UNTUK ADMIN DELIMa -->
+        <!-- 4. ANALISIS ADUAN KHUSUS UNTUK PORTAL ADMIN DELIMa -->
         <section id="tab-admin" class="hidden-tab space-y-6">
             <div id="adminLoginCard" class="bg-white rounded-xl shadow-md border border-gray-100 p-6 sm:p-8 max-w-md mx-auto text-center space-y-4">
                 <div class="w-16 h-16 bg-blue-100 text-delima-blue rounded-full flex items-center justify-center mx-auto text-2xl">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
-                <h2 class="text-xl font-bold text-delima-blue">Kawalan Akses Admin DELIMa</h2>
+                <h2 class="text-xl font-bold text-delima-blue">Kawalan Portal Admin DELIMa</h2>
                 <p class="text-xs text-gray-500">Sila masukkan kata laluan untuk mengakses analisis dan pengurusan aduan murid SMK Bandar Baru Salak Tinggi.</p>
                 
                 <form onsubmit="event.preventDefault(); sahkanAksesAdmin();" class="space-y-3">
                     <input type="password" id="adminPassword" placeholder="Masukkan Kata Laluan Admin" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none text-center">
                     <p class="text-xs text-gray-400">Kata laluan demo: <span class="font-mono font-bold text-gray-600">admin123</span></p>
-                    <button type="submit" class="w-full bg-delima-blue hover:bg-delima-lightBlue text-white font-semibold py-2.5 rounded-lg transition-all">Log Masuk Modul Admin</button>
+                    <button type="submit" class="w-full bg-delima-blue hover:bg-delima-lightBlue text-white font-semibold py-2.5 rounded-lg transition-all">Log Masuk Portal Admin</button>
                 </form>
                 <div id="msgAdminLoginError" class="hidden text-xs text-red-500 font-semibold">Kata laluan tidak sah!</div>
             </div>
@@ -343,6 +353,7 @@
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
                                     <th class="py-3 px-4">Nama / No. KP</th>
+                                    <th class="py-3 px-4">Kelas</th>
                                     <th class="py-3 px-4">Jenis Isu</th>
                                     <th class="py-3 px-4">Penerangan</th>
                                     <th class="py-3 px-4">Status</th>
@@ -386,6 +397,7 @@
             {
                 id: 1,
                 nama: "AHMAD DANIAL BIN MOHD ROSLI",
+                kelas: "1 AMANAH",
                 ic: "080102105544",
                 isu: "Reset Kata Laluan",
                 masalah: "Lupa kata laluan selepas cuti sekolah.",
@@ -537,9 +549,10 @@
             });
         }
 
-        // LOGIK BORANG ADUAN (PENGHANTARAN KE GOOGLE SHEETS)
+        // LOGIK BORANG ADUAN (DIKEMASKINI DENGAN KELAS & HANTAR KE GOOGLE SHEETS)
         async function hantarAduan() {
             const nama = document.getElementById('aduanNama').value.trim();
+            const kelas = document.getElementById('aduanKelas').value.trim();
             const ic = document.getElementById('aduanIC').value.trim();
             const isu = document.getElementById('aduanIsu').value;
             const masalah = document.getElementById('aduanMasalah').value.trim();
@@ -565,6 +578,7 @@
             const newAduan = {
                 id: Date.now(),
                 nama: nama.toUpperCase(),
+                kelas: kelas.toUpperCase(),
                 ic: ic,
                 isu: isu,
                 masalah: masalah,
@@ -627,7 +641,7 @@
                     <div class="flex items-center justify-between border-b pb-3">
                         <div>
                             <p class="text-xs text-gray-500 uppercase font-semibold">Nama Penuh</p>
-                            <h4 class="text-md font-bold text-gray-800">${item.nama}</h4>
+                            <h4 class="text-md font-bold text-gray-800">${item.nama} (${item.kelas || 'N/A'})</h4>
                         </div>
                         <span class="px-3 py-1 rounded-full text-xs font-bold border ${badgeColor}">${item.status}</span>
                     </div>
@@ -696,6 +710,7 @@
                         ${item.nama}<br>
                         <span class="text-xs text-gray-400 font-normal">${item.ic}</span>
                     </td>
+                    <td class="py-3 px-4 font-medium text-gray-700">${item.kelas || '-'}</td>
                     <td class="py-3 px-4">${item.isu}</td>
                     <td class="py-3 px-4 text-xs text-gray-600 max-w-xs">${item.masalah}</td>
                     <td class="py-3 px-4">
