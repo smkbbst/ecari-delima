@@ -307,27 +307,31 @@
                     </div>
                 </div>
 
-                <!-- KPI / STATISTIK UTAMA -->
+                <!-- KPI / STATISTIK UTAMA (DIKLIK UNTUK TAPIS JADUAL) -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Jumlah Aduan</p>
+                    <!-- Jumlah Aduan -->
+                    <div id="cardFilterAll" onclick="setFilterStatus('Semua')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600 cursor-pointer hover:shadow-md transition-all ring-2 ring-blue-500">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">JUMLAH ADUAN</p>
                         <h3 class="text-2xl sm:text-3xl font-extrabold text-blue-900 mt-1" id="kpiJumlah">0</h3>
                     </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-yellow-500">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Status: Baru</p>
+                    <!-- Baru -->
+                    <div id="cardFilterBaru" onclick="setFilterStatus('Baru')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-yellow-500 cursor-pointer hover:shadow-md transition-all">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Baru</p>
                         <h3 class="text-2xl sm:text-3xl font-extrabold text-yellow-600 mt-1" id="kpiBaru">0</h3>
                     </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-indigo-500">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Sedang Disemak</p>
+                    <!-- Sedang Disemak -->
+                    <div id="cardFilterDisemak" onclick="setFilterStatus('Sedang Disemak')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-indigo-500 cursor-pointer hover:shadow-md transition-all">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">SEDANG DISEMAK</p>
                         <h3 class="text-2xl sm:text-3xl font-extrabold text-indigo-600 mt-1" id="kpiDisemak">0</h3>
                     </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Status: Selesai</p>
+                    <!-- Selesai -->
+                    <div id="cardFilterSelesai" onclick="setFilterStatus('Selesai')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500 cursor-pointer hover:shadow-md transition-all">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Selesai</p>
                         <h3 class="text-2xl sm:text-3xl font-extrabold text-green-600 mt-1" id="kpiSelesai">0</h3>
                     </div>
                 </div>
 
-                <!-- ANALISIS BAHARU: KAD RUMUSAN ISU UTAMA SEPANJANG TAHUN -->
+                <!-- KAD RUMUSAN ISU UTAMA SEPANJANG TAHUN -->
                 <div class="bg-gradient-to-r from-delima-blue to-delima-lightBlue rounded-xl shadow-md p-6 text-white flex flex-col md:flex-row items-center justify-between gap-4">
                     <div class="flex items-center space-x-4">
                         <div class="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-3xl text-delima-accent shrink-0">
@@ -369,7 +373,12 @@
 
                 <!-- JADUAL REKOD ADUAN -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 space-y-4">
-                    <h3 class="text-md font-bold text-delima-blue border-b pb-2">Senarai Rekod Aduan Murid</h3>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2">
+                        <h3 class="text-md font-bold text-delima-blue">Senarai Rekod Aduan Murid</h3>
+                        <span id="labelTapisJadual" class="text-xs font-semibold px-2.5 py-1 bg-blue-100 text-delima-blue rounded-full self-start sm:self-auto">
+                            Paparan: Semua Status
+                        </span>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left text-gray-600">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
@@ -430,6 +439,7 @@
 
         let isAdminLoggedIn = false;
         let isMaintenanceMode = false;
+        let activeStatusFilter = "Semua"; // Tetapan penapis lalai
         let chartIsuInstance = null;
         let chartRankIsuInstance = null;
 
@@ -445,7 +455,7 @@
                 if (response.ok) {
                     const result = await response.json();
                     if (Array.isArray(result) && result.length > 0) {
-                        dataMuridList = result; // Kemaskini data murid daripada Google Sheets sebenar
+                        dataMuridList = result;
                     }
                 }
             } catch (err) {
@@ -485,7 +495,6 @@
             }
         }
 
-        // Fungsi kemaskini dropdown kelas secara dinamik mengikut Tingkatan / PPKI 1-4
         function kemaskiniDropdownKelas() {
             const tingkatanPilihan = document.getElementById('selectTingkatan').value.trim();
             const selectKelas = document.getElementById('selectKelas');
@@ -499,7 +508,6 @@
                 return;
             }
 
-            // Ambil senarai kelas unik terus daripada data Google Sheets yang sepadan dengan tingkatan
             const kelasUnik = [...new Set(
                 dataMuridList
                     .filter(m => m.tingkatan && m.tingkatan.toString().trim().toLowerCase() === tingkatanPilihan.toLowerCase())
@@ -521,7 +529,6 @@
             }
         }
 
-        // LOGIK CARIAN (Sokong Lajur Tingkatan, Kelas & Nama)
         async function prosesCarian() {
             const tingkatan = document.getElementById('selectTingkatan').value.trim();
             const kelas = document.getElementById('selectKelas').value.trim();
@@ -533,7 +540,6 @@
             msgError.classList.add('hidden');
             hasilCard.classList.add('hidden');
 
-            // Validasi Nama Murid (Hanya huruf dan ruang)
             const regexNama = /^[a-zA-Z\s@\/]+$/;
             if (!regexNama.test(namaInput)) {
                 msgError.textContent = "Data yang dimasukkan adalah tidak sah";
@@ -541,7 +547,6 @@
                 return;
             }
 
-            // Carian padanan menggunakan 3 kriteria (kalis huruf besar/kecil)
             const hasil = dataMuridList.find(m => {
                 const padanTingkatan = m.tingkatan ? m.tingkatan.toString().trim().toLowerCase() === tingkatan.toLowerCase() : true;
                 const padanKelas = m.kelas ? m.kelas.toString().trim().toLowerCase() === kelas.toLowerCase() : false;
@@ -571,7 +576,6 @@
             });
         }
 
-        // LOGIK BORANG ADUAN
         async function hantarAduan() {
             const nama = document.getElementById('aduanNama').value.trim();
             const kelas = document.getElementById('aduanKelas').value.trim();
@@ -633,7 +637,6 @@
             msgSuccess.classList.remove('hidden');
         }
 
-        // SEMAKAN STATUS ADUAN (PAPAR MAKLUM BALAS APABILA STATUS SELESAI SAHAJA)
         function semakStatusAduan() {
             const icInput = document.getElementById('semakIC').value.trim();
             const msgError = document.getElementById('msgStatusError');
@@ -659,7 +662,9 @@
                 if(item.status === 'Selesai') badgeColor = "bg-green-100 text-green-800 border-green-300";
 
                 let maklumBalasHTML = '';
-                if (item.status === 'Selesai') {
+                const adaMaklumBalas = item.maklumBalas && item.maklumBalas.trim() !== '';
+
+                if (item.status === 'Selesai' || (item.status === 'Sedang Disemak' && adaMaklumBalas)) {
                     maklumBalasHTML = `
                         <div class="bg-white p-3 rounded-lg border text-sm mt-2">
                             <p class="text-xs text-gray-500 font-semibold">Maklum Balas Admin DELIMa:</p>
@@ -718,6 +723,28 @@
             document.getElementById('adminPassword').value = '';
         }
 
+        // FUNGSI PENAPISAN JADUAL BERDASARKAN KLIK KAD KPI
+        function setFilterStatus(status) {
+            activeStatusFilter = status;
+
+            // Buang kesan ring aktif pada semua kad
+            ['cardFilterAll', 'cardFilterBaru', 'cardFilterDisemak', 'cardFilterSelesai'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('ring-2', 'ring-blue-500', 'ring-yellow-500', 'ring-indigo-500', 'ring-green-500');
+            });
+
+            // Tambah kesan ring aktif mengikut kad yang dipilih
+            if (status === 'Semua') document.getElementById('cardFilterAll').classList.add('ring-2', 'ring-blue-500');
+            if (status === 'Baru') document.getElementById('cardFilterBaru').classList.add('ring-2', 'ring-yellow-500');
+            if (status === 'Sedang Disemak') document.getElementById('cardFilterDisemak').classList.add('ring-2', 'ring-indigo-500');
+            if (status === 'Selesai') document.getElementById('cardFilterSelesai').classList.add('ring-2', 'ring-green-500');
+
+            // Kemaskini label penapis pada jadual
+            document.getElementById('labelTapisJadual').textContent = `Paparan: ${status === 'Semua' ? 'Semua Status' : status}`;
+
+            renderAdminAnalytics();
+        }
+
         function renderAdminAnalytics() {
             const total = aduanList.length;
             const baru = aduanList.filter(a => a.status === 'Baru').length;
@@ -732,54 +759,74 @@
             const tbody = document.getElementById('jadualAduanBody');
             tbody.innerHTML = '';
 
-            aduanList.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 border-b";
-                tr.innerHTML = `
-                    <td class="py-3 px-4 font-semibold text-gray-800">
-                        ${item.nama}<br>
-                        <span class="text-xs text-gray-400 font-normal">${item.ic}</span>
-                    </td>
-                    <td class="py-3 px-4 font-medium text-gray-700">${item.kelas || '-'}</td>
-                    <td class="py-3 px-4">${item.isu}</td>
-                    <td class="py-3 px-4 text-xs text-gray-600 max-w-xs">${item.masalah}</td>
-                    <td class="py-3 px-4">
-                        <select onchange="kemaskiniStatusAdmin(${index}, 'status', this.value)" class="text-xs rounded border border-gray-300 p-1 font-semibold">
-                            <option value="Baru" ${item.status === 'Baru' ? 'selected' : ''}>Baru</option>
-                            <option value="Sedang Disemak" ${item.status === 'Sedang Disemak' ? 'selected' : ''}>Sedang Disemak</option>
-                            <option value="Selesai" ${item.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
-                        </select>
-                    </td>
-                    <td class="py-3 px-4">
-                        <textarea rows="2" placeholder="Taip maklum balas..." onblur="kemaskiniStatusAdmin(${index}, 'maklumBalas', this.value)" class="text-xs w-full border border-gray-200 rounded p-1.5 focus:border-delima-lightBlue outline-none resize-y">${item.maklumBalas || ''}</textarea>
-                    </td>
-                    <td class="py-3 px-4 text-center">
-                        <button onclick="padamAduan(${index})" class="text-red-500 hover:text-red-700 text-xs font-bold">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
+            // Tapis data aduan mengikut kad KPI yang diklik
+            let filteredList = aduanList;
+            if (activeStatusFilter !== 'Semua') {
+                filteredList = aduanList.filter(a => a.status === activeStatusFilter);
+            }
+
+            if (filteredList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-6 text-center text-gray-400 font-medium">
+                            Tiada rekod aduan untuk status "${activeStatusFilter}".
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
+            } else {
+                filteredList.forEach((item) => {
+                    // Cari indeks asal item dalam aduanList untuk kemaskini/padam yang betul
+                    const actualIndex = aduanList.findIndex(a => a.id === item.id);
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-gray-50 border-b";
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 font-semibold text-gray-800">
+                            ${item.nama}<br>
+                            <span class="text-xs text-gray-400 font-normal">${item.ic}</span>
+                        </td>
+                        <td class="py-3 px-4 font-medium text-gray-700">${item.kelas || '-'}</td>
+                        <td class="py-3 px-4">${item.isu}</td>
+                        <td class="py-3 px-4 text-xs text-gray-600 max-w-xs">${item.masalah}</td>
+                        <td class="py-3 px-4">
+                            <select onchange="kemaskiniStatusAdmin(${actualIndex}, 'status', this.value)" class="text-xs rounded border border-gray-300 p-1 font-semibold">
+                                <option value="Baru" ${item.status === 'Baru' ? 'selected' : ''}>Baru</option>
+                                <option value="Sedang Disemak" ${item.status === 'Sedang Disemak' ? 'selected' : ''}>Sedang Disemak</option>
+                                <option value="Selesai" ${item.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                            </select>
+                        </td>
+                        <td class="py-3 px-4">
+                            <textarea rows="2" placeholder="Taip maklum balas..." onblur="kemaskiniStatusAdmin(${actualIndex}, 'maklumBalas', this.value)" class="text-xs w-full border border-gray-200 rounded p-1.5 focus:border-delima-lightBlue outline-none resize-y">${item.maklumBalas || ''}</textarea>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="padamAduan(${actualIndex})" class="text-red-500 hover:text-red-700 text-xs font-bold">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
 
             renderCharts();
         }
 
         function kemaskiniStatusAdmin(index, field, value) {
-            aduanList[index][field] = value;
-            localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
-            renderAdminAnalytics();
+            if (index !== -1 && aduanList[index]) {
+                aduanList[index][field] = value;
+                localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
+                renderAdminAnalytics();
+            }
         }
 
         function padamAduan(index) {
-            if(confirm('Adakah anda pasti ingin memadam rekod aduan ini?')) {
+            if (index !== -1 && confirm('Adakah anda pasti ingin memadam rekod aduan ini?')) {
                 aduanList.splice(index, 1);
                 localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
                 renderAdminAnalytics();
             }
         }
 
-        // LOGIK ANALISIS & CARTA TAHUNAN BAHARU
         function renderCharts() {
             const totalAduan = aduanList.length;
             const countIsu = {
@@ -794,7 +841,6 @@
                 else countIsu["Lain-lain"]++;
             });
 
-            // Cari Isu Terbanyak (Top Issue)
             let topIsu = "Tiada Data";
             let maxCount = 0;
             for (const [isu, count] of Object.entries(countIsu)) {
@@ -808,7 +854,7 @@
             document.getElementById('topIsuNama').textContent = topIsu;
             document.getElementById('topIsuStat').textContent = `${maxCount} Kes (${peratusTop}% daripada keseluruhan)`;
 
-            // 1. Carta Pai Pecahan Isu
+            // Carta Pai Pecahan Isu
             if (chartIsuInstance) chartIsuInstance.destroy();
             const ctxIsu = document.getElementById('chartIsu').getContext('2d');
             chartIsuInstance = new Chart(ctxIsu, {
@@ -823,7 +869,7 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // 2. Carta Bar Mendatar (Ranking Isu Tahunan)
+            // Carta Bar Mendatar (Ranking Isu Tahunan)
             if (chartRankIsuInstance) chartRankIsuInstance.destroy();
             const ctxRank = document.getElementById('chartRankIsu').getContext('2d');
             chartRankIsuInstance = new Chart(ctxRank, {
@@ -838,7 +884,7 @@
                     }]
                 },
                 options: { 
-                    indexAxis: 'y', // Memengetahkan carta dalam bentuk mendatar (Ranking)
+                    indexAxis: 'y',
                     responsive: true, 
                     maintainAspectRatio: false,
                     scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
