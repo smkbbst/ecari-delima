@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eSemak DELIMa - SMK Bandar Baru Salak Tinggi</title>
+    <title>eCari DELIMa - SMK Bandar Baru Salak Tinggi</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
@@ -45,7 +45,7 @@
                     <img id="schoolBadge" src="https://i.ibb.co/9mjrBr8h/Logo-SMKBBST-removebg-preview.png" alt="Lencana SMK Bandar Baru Salak Tinggi" class="w-14 h-16 object-contain bg-white rounded p-1 shadow-sm">
                     <div>
                         <h2 id="schoolName" class="text-xs sm:text-sm tracking-wider uppercase font-semibold text-delima-accent">SMK BANDAR BARU SALAK TINGGI</h2>
-                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">eSemak DELIMa</h1>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">eCari DELIMa</h1>
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@
             </div>
             <h2 class="text-2xl font-bold text-delima-blue">Sistem Sedang Diselenggara</h2>
             <p class="text-gray-600 text-sm leading-relaxed">
-                Sistem **eSemak DELIMa SMK Bandar Baru Salak Tinggi** sedang dalam proses pengemaskinian data Google Sheets / API.
+                Sistem **eCari DELIMa SMK Bandar Baru Salak Tinggi** sedang dalam proses pengemaskinian data Google Sheets / API.
             </p>
             <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-xs font-semibold text-yellow-800">
                 Sila cuba lagi dalam masa beberapa minit. Harap maaf atas sebarang kesulitan.
@@ -382,7 +382,7 @@
             { tingkatan: "PPKI 2", kelas: "PPKI ARIF 2", nama: "NUR AMIRA BINTI ZAKARIA", email: "m-44556677@moe-dl.edu.my" }
         ];
 
-        let aduanList = JSON.parse(localStorage.getItem('esemak_aduan_list')) || [
+        let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [
             {
                 id: 1,
                 nama: "AHMAD DANIAL BIN MOHD ROSLI",
@@ -586,7 +586,7 @@
             }
 
             aduanList.push(newAduan);
-            localStorage.setItem('esemak_aduan_list', JSON.stringify(aduanList));
+            localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
 
             document.getElementById('formAduan').reset();
 
@@ -722,14 +722,14 @@
 
         function kemaskiniStatusAdmin(index, field, value) {
             aduanList[index][field] = value;
-            localStorage.setItem('esemak_aduan_list', JSON.stringify(aduanList));
+            localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
             renderAdminAnalytics();
         }
 
         function padamAduan(index) {
             if(confirm('Adakah anda pasti ingin memadam rekod aduan ini?')) {
                 aduanList.splice(index, 1);
-                localStorage.setItem('esemak_aduan_list', JSON.stringify(aduanList));
+                localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
                 renderAdminAnalytics();
             }
         }
