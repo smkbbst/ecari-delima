@@ -42,7 +42,7 @@
                 
                 <!-- Identiti Sekolah & Sistem -->
                 <div class="flex items-center space-x-3 text-center md:text-left">
-                    <img id="schoolBadge" src="https://upload.wikimedia.org/wikipedia/commons/4/41/SMK_Bandar_Baru_Salak_Tinggi_lencana.gif" alt="Lencana SMK Bandar Baru Salak Tinggi" class="w-14 h-16 object-contain bg-white rounded p-1 shadow-sm">
+                    <img id="schoolBadge" src="<a href="https://imgbb.com/"><img src="https://i.ibb.co/9mjrBr8h/Logo-SMKBBST-removebg-preview.png" alt="Logo SMKBBST removebg preview" border="0"></a>" alt="Lencana SMK Bandar Baru Salak Tinggi" class="w-14 h-16 object-contain bg-white rounded p-1 shadow-sm">
                     <div>
                         <h2 id="schoolName" class="text-xs sm:text-sm tracking-wider uppercase font-semibold text-delima-accent">SMK BANDAR BARU SALAK TINGGI</h2>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">eSemak DELIMa</h1>
@@ -59,13 +59,14 @@
                         <i class="fa-solid fa-paper-plane"></i>
                         <span>Borang Aduan</span>
                     </button>
+                    <!-- Kemaskini: Teks ditukar kepada "Semak Status Aduan" -->
                     <button onclick="switchTab('status')" id="btn-status" class="nav-btn bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all flex items-center space-x-2">
                         <i class="fa-solid fa-list-check"></i>
-                        <span>Semak Status</span>
+                        <span>Semak Status Aduan</span>
                     </button>
-                    <button onclick="switchTab('guru')" id="btn-guru" class="nav-btn bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all flex items-center space-x-2 border border-delima-accent/30 text-delima-accent">
-                        <i class="fa-solid fa-user-tie"></i>
-                        <span>Akses Guru</span>
+                    <button onclick="switchTab('admin')" id="btn-admin" class="nav-btn bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all flex items-center space-x-2 border border-delima-accent/30 text-delima-accent">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Akses Admin DELIMa</span>
                     </button>
                 </nav>
 
@@ -73,8 +74,24 @@
         </div>
     </header>
 
+    <!-- PAPARAN MOD PENYELENGGARAAN (MAINTENANCE VIEW) -->
+    <div id="maintenanceView" class="hidden-tab max-w-2xl mx-auto p-4 sm:p-8 my-auto">
+        <div class="bg-white rounded-xl shadow-lg border border-yellow-200 p-8 text-center space-y-4">
+            <div class="w-20 h-20 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-delima-blue">Sistem Sedang Diselenggara</h2>
+            <p class="text-gray-600 text-sm leading-relaxed">
+                Sistem **eSemak DELIMa SMK Bandar Baru Salak Tinggi** sedang dalam proses pengemaskinian data Google Sheets / API.
+            </p>
+            <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-xs font-semibold text-yellow-800">
+                Sila cuba lagi dalam masa beberapa minit. Harap maaf atas sebarang kesulitan.
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN CONTENT CONTAINERS -->
-    <main class="flex-grow max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    <main id="mainContainer" class="flex-grow max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
 
         <!-- 1. MODUL CARIAN ID DELIMa -->
         <section id="tab-carian" class="space-y-6">
@@ -151,7 +168,7 @@
                             <span>Salin E-mel</span>
                         </button>
                     </div>
-                    <div id="msgSalin" class="hidden text-xs text-green-600 font-semibold text-right"></div>
+                    <div id="msgSalin" class="hidden text-xs text-green-600 font-semibold text-right">E-mel berjaya disalin</div>
                 </div>
             </div>
         </section>
@@ -226,7 +243,7 @@
                         <i class="fa-solid fa-list-check text-delima-lightBlue"></i>
                         <span>Semakan Status Aduan</span>
                     </h2>
-                    <p class="text-sm text-gray-500 mt-1">Masukkan Nombor Kad Pengenalan anda untuk melihat maklum balas serta status terkini aduan.</p>
+                    <p class="text-sm text-gray-500 mt-1">Masukkan Nombor Kad Pengenalan anda untuk melihat maklum balas serta status terkini aduan daripada Admin DELIMa.</p>
                 </div>
 
                 <form onsubmit="event.preventDefault(); semakStatusAduan();" class="space-y-4">
@@ -248,38 +265,42 @@
             </div>
         </section>
 
-        <!-- 4. ANALISIS ADUAN KHUSUS UNTUK GURU DELIMa -->
-        <section id="tab-guru" class="hidden-tab space-y-6">
-            <!-- Modal Akses Log Masuk Guru -->
-            <div id="guruLoginCard" class="bg-white rounded-xl shadow-md border border-gray-100 p-6 sm:p-8 max-w-md mx-auto text-center space-y-4">
+        <!-- 4. ANALISIS ADUAN KHUSUS UNTUK ADMIN DELIMa -->
+        <section id="tab-admin" class="hidden-tab space-y-6">
+            <!-- Modal Akses Log Masuk Admin -->
+            <div id="adminLoginCard" class="bg-white rounded-xl shadow-md border border-gray-100 p-6 sm:p-8 max-w-md mx-auto text-center space-y-4">
                 <div class="w-16 h-16 bg-blue-100 text-delima-blue rounded-full flex items-center justify-center mx-auto text-2xl">
-                    <i class="fa-solid fa-lock"></i>
+                    <i class="fa-solid fa-user-shield"></i>
                 </div>
-                <h2 class="text-xl font-bold text-delima-blue">Kawalan Akses Guru DELIMa</h2>
+                <h2 class="text-xl font-bold text-delima-blue">Kawalan Akses Admin DELIMa</h2>
                 <p class="text-xs text-gray-500">Sila masukkan kata laluan untuk mengakses analisis dan pengurusan aduan murid SMK Bandar Baru Salak Tinggi.</p>
                 
-                <form onsubmit="event.preventDefault(); sahkanAksesGuru();" class="space-y-3">
-                    <input type="password" id="guruPassword" placeholder="Masukkan Kata Laluan Guru" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none text-center">
-                    <p class="text-xs text-gray-400">Kata laluan laluan laluan demo: <span class="font-mono font-bold text-gray-600">guru123</span></p>
-                    <button type="submit" class="w-full bg-delima-blue hover:bg-delima-lightBlue text-white font-semibold py-2.5 rounded-lg transition-all">Log Masuk Modul Guru</button>
+                <form onsubmit="event.preventDefault(); sahkanAksesAdmin();" class="space-y-3">
+                    <input type="password" id="adminPassword" placeholder="Masukkan Kata Laluan Admin" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none text-center">
+                    <p class="text-xs text-gray-400">Kata laluan demo: <span class="font-mono font-bold text-gray-600">admin123</span></p>
+                    <button type="submit" class="w-full bg-delima-blue hover:bg-delima-lightBlue text-white font-semibold py-2.5 rounded-lg transition-all">Log Masuk Modul Admin</button>
                 </form>
-                <div id="msgGuruLoginError" class="hidden text-xs text-red-500 font-semibold"></div>
+                <div id="msgAdminLoginError" class="hidden text-xs text-red-500 font-semibold">Kata laluan tidak sah!</div>
             </div>
 
-            <!-- Dashboard Portal Guru -->
-            <div id="guruDashboard" class="hidden space-y-6">
-                <!-- Bar Pengurusan / Tetapan Integration -->
+            <!-- Dashboard Portal Admin -->
+            <div id="adminDashboard" class="hidden space-y-6">
+                <!-- Bar Pengurusan & Suis Penyelenggaraan -->
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
-                        <h2 class="text-xl font-bold text-delima-blue">Portal Analisis & Pengurusan Aduan Guru</h2>
-                        <p class="text-xs text-gray-500">Akses Khas Guru DELIMa SMK Bandar Baru Salak Tinggi</p>
+                        <h2 class="text-xl font-bold text-delima-blue">Portal Analisis & Pengurusan Aduan Admin DELIMa</h2>
+                        <p class="text-xs text-gray-500">Akses Khas Admin DELIMa SMK Bandar Baru Salak Tinggi</p>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="bukaTetapanSheets()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center space-x-1 shadow">
-                            <i class="fa-solid fa-file-excel"></i>
-                            <span>Tetapan Google Sheets API</span>
-                        </button>
-                        <button onclick="logKeluarGuru()" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-lg text-xs font-semibold border border-red-200">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Suis Penyelenggaraan -->
+                        <div class="flex items-center space-x-2 bg-yellow-50 px-3 py-1.5 rounded-lg border border-yellow-200">
+                            <span class="text-xs font-semibold text-yellow-800">Mod Penyelenggaraan:</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggleMaintenance" onchange="tukarModPenyelenggaraan(this.checked)" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-500"></div>
+                            </label>
+                        </div>
+                        <button onclick="logKeluarAdmin()" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-lg text-xs font-semibold border border-red-200">
                             <i class="fa-solid fa-right-from-bracket"></i>
                             <span>Log Keluar</span>
                         </button>
@@ -330,7 +351,7 @@
 
                 <!-- Pengurusan & Kemaskini Status Aduan Murid -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 space-y-4">
-                    <h3 class="text-md font-bold text-delima-blue border-b pb-2">Senarai Senarai Rekod Aduan Murid</h3>
+                    <h3 class="text-md font-bold text-delima-blue border-b pb-2">Senarai Rekod Aduan Murid</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left text-gray-600">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
@@ -339,7 +360,7 @@
                                     <th class="py-3 px-4">Jenis Isu</th>
                                     <th class="py-3 px-4">Penerangan</th>
                                     <th class="py-3 px-4">Status</th>
-                                    <th class="py-3 px-4">Maklum Balas Guru</th>
+                                    <th class="py-3 px-4">Maklum Balas Admin</th>
                                     <th class="py-3 px-4 text-center">Tindakan</th>
                                 </tr>
                             </thead>
@@ -362,7 +383,10 @@
 
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
-        // Data Pemetaan Kelas mengikut Tingkatan
+        // Masukkan URL Google Apps Script Web App anda di sini
+        const https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec = ""; 
+
+        // Pemetaan Kelas mengikut Tingkatan
         const PEMETAAN_KELAS = {
             "Tingkatan 1": ["1 AMANAH", "1 CEKAL", "1 IKHLAS", "1 JUJU", "1 MURNI"],
             "Tingkatan 2": ["2 AMANAH", "2 CEKAL", "2 IKHLAS", "2 JUJU", "2 MURNI"],
@@ -372,8 +396,8 @@
             "Tingkatan 6": ["6 ATAS HUMANITI", "6 ATAS SAINS", "6 BAWAH HUMANITI", "6 BAWAH SAINS"]
         };
 
-        // Pangkalan Data Contoh / Simulasi Google Sheets (Data Murid)
-        const DATA_MURID_MOCK = [
+        // Data Simpanan Sementara (Mock)
+        let dataMuridList = [
             { nama: "AHMAD DANIAL BIN MOHD ROSLI", kelas: "1 AMANAH", email: "m-12345678@moe-dl.edu.my" },
             { nama: "SITI NURHALIZA BINTI AMIR", kelas: "1 AMANAH", email: "m-87654321@moe-dl.edu.my" },
             { nama: "MUHAMMAD HAZIM BIN ZULKIFLI", kelas: "3 CEKAL", email: "m-11223344@moe-dl.edu.my" },
@@ -382,7 +406,6 @@
             { nama: "KAVIN A/L RAMESH", kelas: "6 ATAS SAINS", email: "m-33445566@moe-dl.edu.my" }
         ];
 
-        // System State
         let aduanList = JSON.parse(localStorage.getItem('esemak_aduan_list')) || [
             {
                 id: 1,
@@ -394,13 +417,15 @@
                 maklumBalas: ""
             }
         ];
-        let isGuruLoggedIn = false;
+
+        let isAdminLoggedIn = false;
+        let isMaintenanceMode = false;
         let chartIsuInstance = null;
         let chartStatusInstance = null;
 
-        // Swapping Tabs
+        // Tukar Tab Navigasi
         function switchTab(tabName) {
-            ['carian', 'aduan', 'status', 'guru'].forEach(t => {
+            ['carian', 'aduan', 'status', 'admin'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden-tab');
                 const btn = document.getElementById(`btn-${t}`);
                 btn.classList.remove('bg-delima-lightBlue', 'shadow');
@@ -412,8 +437,23 @@
             activeBtn.classList.remove('bg-white/10');
             activeBtn.classList.add('bg-delima-lightBlue', 'shadow');
 
-            if(tabName === 'guru' && isGuruLoggedIn) {
-                renderGuruAnalytics();
+            if(tabName === 'admin' && isAdminLoggedIn) {
+                renderAdminAnalytics();
+            }
+        }
+
+        // FUNGSI MOD PENYELENGGARAAN
+        function tukarModPenyelenggaraan(status) {
+            isMaintenanceMode = status;
+            const mainContainer = document.getElementById('mainContainer');
+            const maintenanceView = document.getElementById('maintenanceView');
+
+            if (isMaintenanceMode) {
+                mainContainer.classList.add('hidden-tab');
+                maintenanceView.classList.remove('hidden-tab');
+            } else {
+                mainContainer.classList.remove('hidden-tab');
+                maintenanceView.classList.add('hidden-tab');
             }
         }
 
@@ -458,8 +498,8 @@
                 return;
             }
 
-            // Carian padanan dalam Google Sheets Data / Mock Data
-            const hasil = DATA_MURID_MOCK.find(m => 
+            // Carian padanan
+            const hasil = dataMuridList.find(m => 
                 m.kelas === kelas && 
                 m.nama.toUpperCase().includes(namaInput.toUpperCase())
             );
@@ -470,7 +510,7 @@
                 document.getElementById('resEmail').textContent = hasil.email;
                 hasilCard.classList.remove('hidden');
             } else {
-                msgError.textContent = "Maklumat tidak dijumpai. Sila pastikan ejaan nama dan kelas adalah betul.";
+                msgError.textContent = "Maklumat tidak dijumpai";
                 msgError.classList.remove('hidden');
             }
         }
@@ -479,7 +519,6 @@
             const emailText = document.getElementById('resEmail').textContent;
             navigator.clipboard.writeText(emailText).then(() => {
                 const msg = document.getElementById('msgSalin');
-                msg.textContent = "E-mel berjaya disalin";
                 msg.classList.remove('hidden');
                 setTimeout(() => msg.classList.add('hidden'), 3000);
             }).catch(() => {
@@ -502,43 +541,39 @@
             msgError.classList.add('hidden');
             msgSuccess.classList.add('hidden');
 
-            // Validasi IC (12 digit angka)
             if (!/^\d{12}$/.test(ic)) {
                 msgError.textContent = "Sila masukkan 12 digit Nombor Kad Pengenalan tanpa tanda (-)";
                 msgError.classList.remove('hidden');
                 return;
             }
 
-            // Nyahaktifkan Butang (Pencegahan Double-Submission)
+            // Nyahaktifkan Butang Hantar (Pencegahan Double-Submission)
             btnHantar.disabled = true;
             btnHantar.classList.add('opacity-50', 'cursor-not-allowed');
             btnText.textContent = "Sedang Dihantar...";
 
-            setTimeout(() => {
-                const newAduan = {
-                    id: Date.now(),
-                    nama: nama.toUpperCase(),
-                    ic: ic,
-                    isu: isu,
-                    masalah: masalah,
-                    status: "Baru",
-                    maklumBalas: ""
-                };
+            const newAduan = {
+                id: Date.now(),
+                nama: nama.toUpperCase(),
+                ic: ic,
+                isu: isu,
+                masalah: masalah,
+                status: "Baru",
+                maklumBalas: ""
+            };
 
+            setTimeout(() => {
                 aduanList.push(newAduan);
                 localStorage.setItem('esemak_aduan_list', JSON.stringify(aduanList));
 
-                // Reset Form
                 document.getElementById('formAduan').reset();
 
-                // Aktifkan Butang Semula
                 btnHantar.disabled = false;
                 btnHantar.classList.remove('opacity-50', 'cursor-not-allowed');
                 btnText.textContent = "Hantar Aduan";
 
-                // Mesej Kejayaan Tepat
                 msgSuccess.classList.remove('hidden');
-            }, 1000);
+            }, 800);
         }
 
         // LOGIK SEMAKAN STATUS ADUAN
@@ -556,7 +591,7 @@
             const padanan = aduanList.filter(a => a.ic === icInput);
 
             if (padanan.length === 0) {
-                msgError.textContent = "Aduan tidak dijumpai bagi Nombor Kad Pengenalan ini.";
+                msgError.textContent = "Aduan tidak dijumpai";
                 msgError.classList.remove('hidden');
                 return;
             }
@@ -587,7 +622,7 @@
                         </div>
                     </div>
                     <div class="bg-white p-3 rounded-lg border text-sm mt-2">
-                        <p class="text-xs text-gray-500 font-semibold">Maklum Balas Guru / Pentadbir:</p>
+                        <p class="text-xs text-gray-500 font-semibold">Maklum Balas Admin DELIMa:</p>
                         <p class="text-gray-800 font-medium mt-1">${item.maklumBalas || "Belum ada maklum balas. Aduan anda sedang diproses."}</p>
                     </div>
                 `;
@@ -597,31 +632,30 @@
             hasilContainer.classList.remove('hidden');
         }
 
-        // KAWALAN AKSES & PORTAL GURU
-        function sahkanAksesGuru() {
-            const pwd = document.getElementById('guruPassword').value;
-            const msgErr = document.getElementById('msgGuruLoginError');
+        // KAWALAN AKSES & PORTAL ADMIN DELIMa
+        function sahkanAksesAdmin() {
+            const pwd = document.getElementById('adminPassword').value;
+            const msgErr = document.getElementById('msgAdminLoginError');
 
-            if (pwd === 'guru123') {
-                isGuruLoggedIn = true;
+            if (pwd === 'admin123') {
+                isAdminLoggedIn = true;
                 msgErr.classList.add('hidden');
-                document.getElementById('guruLoginCard').classList.add('hidden');
-                document.getElementById('guruDashboard').classList.remove('hidden');
-                renderGuruAnalytics();
+                document.getElementById('adminLoginCard').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                renderAdminAnalytics();
             } else {
-                msgErr.textContent = "Kata laluan tidak sah!";
                 msgErr.classList.remove('hidden');
             }
         }
 
-        function logKeluarGuru() {
-            isGuruLoggedIn = false;
-            document.getElementById('guruDashboard').classList.add('hidden');
-            document.getElementById('guruLoginCard').classList.remove('hidden');
-            document.getElementById('guruPassword').value = '';
+        function logKeluarAdmin() {
+            isAdminLoggedIn = false;
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('adminLoginCard').classList.remove('hidden');
+            document.getElementById('adminPassword').value = '';
         }
 
-        function renderGuruAnalytics() {
+        function renderAdminAnalytics() {
             const total = aduanList.length;
             const baru = aduanList.filter(a => a.status === 'Baru').length;
             const disemak = aduanList.filter(a => a.status === 'Sedang Disemak').length;
@@ -647,14 +681,14 @@
                     <td class="py-3 px-4">${item.isu}</td>
                     <td class="py-3 px-4 text-xs text-gray-600 max-w-xs">${item.masalah}</td>
                     <td class="py-3 px-4">
-                        <select onchange="kemaskiniStatusGuru(${index}, 'status', this.value)" class="text-xs rounded border border-gray-300 p-1 font-semibold">
+                        <select onchange="kemaskiniStatusAdmin(${index}, 'status', this.value)" class="text-xs rounded border border-gray-300 p-1 font-semibold">
                             <option value="Baru" ${item.status === 'Baru' ? 'selected' : ''}>Baru</option>
                             <option value="Sedang Disemak" ${item.status === 'Sedang Disemak' ? 'selected' : ''}>Sedang Disemak</option>
                             <option value="Selesai" ${item.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
                         </select>
                     </td>
                     <td class="py-3 px-4">
-                        <input type="text" value="${item.maklumBalas || ''}" placeholder="Taip maklum balas..." onblur="kemaskiniStatusGuru(${index}, 'maklumBalas', this.value)" class="text-xs w-full border border-gray-200 rounded p-1.5 focus:border-delima-lightBlue outline-none">
+                        <input type="text" value="${item.maklumBalas || ''}" placeholder="Taip maklum balas..." onblur="kemaskiniStatusAdmin(${index}, 'maklumBalas', this.value)" class="text-xs w-full border border-gray-200 rounded p-1.5 focus:border-delima-lightBlue outline-none">
                     </td>
                     <td class="py-3 px-4 text-center">
                         <button onclick="padamAduan(${index})" class="text-red-500 hover:text-red-700 text-xs font-bold">
@@ -665,26 +699,24 @@
                 tbody.appendChild(tr);
             });
 
-            // Render Charts
             renderCharts(baru, disemak, selesai);
         }
 
-        function kemaskiniStatusGuru(index, field, value) {
+        function kemaskiniStatusAdmin(index, field, value) {
             aduanList[index][field] = value;
             localStorage.setItem('esemak_aduan_list', JSON.stringify(aduanList));
-            renderGuruAnalytics();
+            renderAdminAnalytics();
         }
 
         function padamAduan(index) {
             if(confirm('Adakah anda pasti ingin memadam rekod aduan ini?')) {
                 aduanList.splice(index, 1);
                 localStorage.setItem('esemak_aduan_list', JSON.stringify(aduanList));
-                renderGuruAnalytics();
+                renderAdminAnalytics();
             }
         }
 
         function renderCharts(baru, disemak, selesai) {
-            // Count Isu Types
             const countIsu = {
                 "Reset Kata Laluan": 0,
                 "Tiada ID DELIMa": 0,
@@ -697,7 +729,6 @@
                 else countIsu["Lain-lain"]++;
             });
 
-            // Chart Isu
             if (chartIsuInstance) chartIsuInstance.destroy();
             const ctxIsu = document.getElementById('chartIsu').getContext('2d');
             chartIsuInstance = new Chart(ctxIsu, {
@@ -712,7 +743,6 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // Chart Status
             if (chartStatusInstance) chartStatusInstance.destroy();
             const ctxStatus = document.getElementById('chartStatus').getContext('2d');
             chartStatusInstance = new Chart(ctxStatus, {
@@ -731,10 +761,6 @@
                     scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
                 }
             });
-        }
-
-        function bukaTetapanSheets() {
-            alert("Sistem sedang beroperasi dalam mod integrasi simpanan setempat (LocalStorage/Google Sheets Ready). Hubungkan URL Apps Script anda melalui WebApp Endpoint.");
         }
     </script>
 </body>
