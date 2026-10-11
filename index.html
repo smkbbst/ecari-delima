@@ -457,6 +457,7 @@
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
         const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
+
         let dataMuridList = [];
         let aduanList = [];
 
@@ -639,7 +640,6 @@
         async function muatAduanDariGoogleSheets() {
             if (!GOOGLE_SHEETS_SCRIPT_URL) return;
             try {
-                // Parameter _t digunakan untuk memaksa penyegaran tanpa menyimpan cache
                 const response = await fetch(GOOGLE_SHEETS_SCRIPT_URL + "?action=getAduan&_t=" + Date.now());
                 if (response.ok) {
                     const dataAduanSheet = await response.json();
@@ -836,6 +836,11 @@
             btnText.textContent = "Hantar Aduan";
 
             msgSuccess.classList.remove('hidden');
+            
+            // Muat semula senarai aduan terkini
+            if (isAdminLoggedIn) {
+                await muatAduanDariGoogleSheets();
+            }
         }
 
         async function semakStatusAduan() {
@@ -1096,10 +1101,7 @@
                                 })
                             });
 
-                            // Masa penangguhan 1.5 saat untuk membenarkan Google Apps Script selesai memadam kandungan dan baris
                             await new Promise(resolve => setTimeout(resolve, 1500));
-
-                            // Muat semula data rasmi terus dari Google Sheets supaya 100% sync
                             await muatAduanDariGoogleSheets();
 
                         } catch (e) {
