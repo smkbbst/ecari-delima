@@ -445,7 +445,51 @@
             }
         }
 
+        // LOGIK PENJAGAAN MOD PENYELENGGARAAN & TAB SWITCHING
+        function tukarModPenyelenggaraan(status) {
+            isMaintenanceMode = status;
+            
+            const maintenanceView = document.getElementById('maintenanceView');
+
+            if (isMaintenanceMode) {
+                // Jika sedang berada di tab selain admin, tunjukkan paparan penyelenggaraan
+                const activeTab = document.querySelector('section:not(.hidden-tab)');
+                if (activeTab && activeTab.id !== 'tab-admin') {
+                    activeTab.classList.add('hidden-tab');
+                    maintenanceView.classList.remove('hidden-tab');
+                }
+            } else {
+                maintenanceView.classList.add('hidden-tab');
+                const activeTab = document.querySelector('section:not(.hidden-tab)');
+                if (!activeTab) {
+                    switchTab('carian');
+                }
+            }
+        }
+
         function switchTab(tabName) {
+            const maintenanceView = document.getElementById('maintenanceView');
+
+            // Jika mod penyelenggaraan aktif dan pengguna bukan admin, halang dan tunjukkan skrin penyelenggaraan
+            if (isMaintenanceMode && tabName !== 'admin') {
+                ['carian', 'aduan', 'status', 'admin'].forEach(t => {
+                    document.getElementById(`tab-${t}`).classList.add('hidden-tab');
+                    const btn = document.getElementById(`btn-${t}`);
+                    btn.classList.remove('bg-delima-lightBlue', 'shadow');
+                    btn.classList.add('bg-white/10');
+                });
+
+                const activeBtn = document.getElementById(`btn-${tabName}`);
+                activeBtn.classList.remove('bg-white/10');
+                activeBtn.classList.add('bg-delima-lightBlue', 'shadow');
+
+                maintenanceView.classList.remove('hidden-tab');
+                return;
+            }
+
+            // Jika mod biasa atau masuk ke Portal Admin
+            maintenanceView.classList.add('hidden-tab');
+
             ['carian', 'aduan', 'status', 'admin'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden-tab');
                 const btn = document.getElementById(`btn-${t}`);
@@ -458,22 +502,8 @@
             activeBtn.classList.remove('bg-white/10');
             activeBtn.classList.add('bg-delima-lightBlue', 'shadow');
 
-            if(tabName === 'admin' && isAdminLoggedIn) {
+            if (tabName === 'admin' && isAdminLoggedIn) {
                 renderAdminAnalytics();
-            }
-        }
-
-        function tukarModPenyelenggaraan(status) {
-            isMaintenanceMode = status;
-            const mainContainer = document.getElementById('mainContainer');
-            const maintenanceView = document.getElementById('maintenanceView');
-
-            if (isMaintenanceMode) {
-                mainContainer.classList.add('hidden-tab');
-                maintenanceView.classList.remove('hidden-tab');
-            } else {
-                mainContainer.classList.remove('hidden-tab');
-                maintenanceView.classList.add('hidden-tab');
             }
         }
 
@@ -787,13 +817,11 @@
             renderCharts();
         }
 
-        // FUNGSI KEMASKINI STATUS ADMIN (DENGAN PENGHANTARAN TERUS KE GOOGLE SHEETS)
         async function kemaskiniStatusAdmin(index, field, value) {
             if (index !== -1 && aduanList[index]) {
                 aduanList[index][field] = value;
                 localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
                 
-                // Hantar perubahan automatik ke Google Sheets
                 if (GOOGLE_SHEETS_SCRIPT_URL) {
                     try {
                         await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
