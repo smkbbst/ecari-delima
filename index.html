@@ -663,11 +663,11 @@
             });
         }
 
-        // BORANG ADUAN - MENGGUNAKAN ID "aduanTingkatan" DAN "aduanKelas" DENGAN TEPAT
+        // FUNGSI HANTAR ADUAN - MENGGUNAKAN ID ELEMEN ADUAN DENGAN TEPAT
         async function hantarAduan() {
             const nama = document.getElementById('aduanNama').value.trim();
-            const tingkatan = document.getElementById('aduanTingkatan').value.trim(); // Ambil dari DDL Tingkatan Aduan
-            const kelas = document.getElementById('aduanKelas').value.trim();         // Ambil dari DDL Kelas Aduan
+            const tingkatan = document.getElementById('aduanTingkatan').value.trim(); 
+            const kelas = document.getElementById('aduanKelas').value.trim();         
             const ic = document.getElementById('aduanIC').value.trim();
             const isu = document.getElementById('aduanIsu').value;
             const masalah = document.getElementById('aduanMasalah').value.trim();
@@ -680,6 +680,9 @@
 
             msgError.classList.add('hidden');
             msgSuccess.classList.add('hidden');
+
+            // CETAK SEMAKAN DI CONSOLE (TEKAN F12 UNTUK LIHAT)
+            console.log("Data Dihantar Ke Sheets:", { nama, tingkatan, kelas, ic, isu, masalah });
 
             if (!sahkanNoKP(ic)) {
                 msgICError.classList.remove('hidden');
