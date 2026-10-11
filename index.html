@@ -167,7 +167,6 @@
                         <input type="text" id="aduanNama" placeholder="Masukkan nama penuh" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none uppercase" required>
                     </div>
 
-                    <!-- DDL TINGKATAN & KELAS TERPISAH -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih Tingkatan <span class="text-red-500">*</span></label>
@@ -373,7 +372,6 @@
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
                                     <th class="py-3 px-4">Nama / No. KP</th>
-                                    <th class="py-3 px-4">Tingkatan</th>
                                     <th class="py-3 px-4">Kelas</th>
                                     <th class="py-3 px-4">Jenis Isu</th>
                                     <th class="py-3 px-4">Penerangan</th>
@@ -663,10 +661,9 @@
             });
         }
 
-        // FUNGSI HANTAR ADUAN - MENGGUNAKAN ID ELEMEN ADUAN DENGAN TEPAT
+        // FUNGSI HANTAR ADUAN - MENGHANTAR DATA SAMA DENGAN STRUKTUR GOOGLE SHEETS (8 LAJUR)
         async function hantarAduan() {
             const nama = document.getElementById('aduanNama').value.trim();
-            const tingkatan = document.getElementById('aduanTingkatan').value.trim(); 
             const kelas = document.getElementById('aduanKelas').value.trim();         
             const ic = document.getElementById('aduanIC').value.trim();
             const isu = document.getElementById('aduanIsu').value;
@@ -681,9 +678,6 @@
             msgError.classList.add('hidden');
             msgSuccess.classList.add('hidden');
 
-            // CETAK SEMAKAN DI CONSOLE (TEKAN F12 UNTUK LIHAT)
-            console.log("Data Dihantar Ke Sheets:", { nama, tingkatan, kelas, ic, isu, masalah });
-
             if (!sahkanNoKP(ic)) {
                 msgICError.classList.remove('hidden');
                 return;
@@ -697,7 +691,6 @@
 
             const payloadAduan = {
                 nama: nama.toUpperCase(),
-                tingkatan: tingkatan,
                 kelas: kelas,
                 ic: ic,
                 isu: isu,
@@ -720,7 +713,6 @@
             const localAduan = {
                 id: Date.now(),
                 nama: nama.toUpperCase(),
-                tingkatan: tingkatan,
                 kelas: kelas,
                 ic: ic,
                 isu: isu,
@@ -792,7 +784,7 @@
                     <div class="flex items-center justify-between border-b pb-3">
                         <div>
                             <p class="text-xs text-gray-500 uppercase font-semibold">Nama Penuh</p>
-                            <h4 class="text-md font-bold text-gray-800">${item.nama} (${item.tingkatan || ''} ${item.kelas || 'N/A'})</h4>
+                            <h4 class="text-md font-bold text-gray-800">${item.nama} (${item.kelas || 'N/A'})</h4>
                         </div>
                         <span class="px-3 py-1 rounded-full text-xs font-bold border ${badgeColor}">${item.status}</span>
                     </div>
@@ -818,7 +810,7 @@
             const pwd = document.getElementById('adminPassword').value;
             const msgErr = document.getElementById('msgAdminLoginError');
 
-            if (pwd === 'admin123') { 
+            if (pwd === 'be@960#') { 
                 isAdminLoggedIn = true;
                 msgErr.classList.add('hidden');
                 document.getElementById('adminLoginCard').classList.add('hidden');
@@ -892,7 +884,7 @@
             if (filteredList.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="py-6 text-center text-gray-400 font-medium">
+                        <td colspan="7" class="py-6 text-center text-gray-400 font-medium">
                             Tiada rekod aduan untuk status "${activeStatusFilter}".
                         </td>
                     </tr>
@@ -908,7 +900,6 @@
                             ${item.nama}<br>
                             <span class="text-xs text-gray-400 font-normal">${item.ic}</span>
                         </td>
-                        <td class="py-3 px-4 font-medium text-gray-700">${item.tingkatan || '-'}</td>
                         <td class="py-3 px-4 font-medium text-gray-700">${item.kelas || '-'}</td>
                         <td class="py-3 px-4">${item.isu}</td>
                         <td class="py-3 px-4 text-xs text-gray-600 max-w-xs">${item.masalah}</td>
@@ -935,6 +926,7 @@
             renderCharts();
         }
 
+        // FUNGSI UNTUK DIKEMASKINI KE GOOGLE SHEETS BILA ADMIN TUKAR STATUS / MAKLUM BALAS
         async function kemaskiniStatusAdmin(index, field, value) {
             if (index !== -1 && aduanList[index]) {
                 aduanList[index][field] = value;
