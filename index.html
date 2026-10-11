@@ -362,7 +362,7 @@
                     </div>
                 </div>
 
-                <!-- SENARAI REKOD ADUAN MURID (DENGAN DROPDOWN FILTER STATUS) -->
+                <!-- SENARAI REKOD ADUAN MURID -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
                         <h3 class="text-md font-bold text-delima-blue flex items-center space-x-2">
@@ -400,7 +400,7 @@
 
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
-        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
+        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
 
         let dataMuridList = [];
         let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
@@ -410,6 +410,27 @@
         let activeStatusFilter = "Semua";
         let chartIsuInstance = null;
         let chartRankIsuInstance = null;
+
+        // FUNGSI PENUKAR FORMAT TARIKH UTC/ISO KEPADA FORMAT KEMAS MALAYSIA (DD/MM/YYYY, HH:MM)
+        function formatTarikhBiasa(tarikhRaw) {
+            if (!tarikhRaw) return '';
+            try {
+                const dateObj = new Date(tarikhRaw);
+                if (isNaN(dateObj.getTime())) return tarikhRaw; // Jika string biasa, pulangkan asal
+                
+                return dateObj.toLocaleString("ms-MY", {
+                    timeZone: "Asia/Kuala_Lumpur",
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true
+                });
+            } catch (e) {
+                return tarikhRaw;
+            }
+        }
 
         function sahkanNoKP(ic) {
             if (!ic) return false;
@@ -803,7 +824,7 @@
             hasilContainer.classList.remove('hidden');
         }
 
-        // LOG MASUK ADMIN (KATA LALUAN DIKEMASKINI: be@960#)
+        // LOG MASUK ADMIN
         async function sahkanAksesAdmin() {
             const pwd = document.getElementById('adminPassword').value;
             const msgErr = document.getElementById('msgAdminLoginError');
@@ -891,6 +912,7 @@
             } else {
                 filteredList.forEach((item) => {
                     const actualIndex = aduanList.findIndex(a => a.id === item.id);
+                    const tarikhKemas = formatTarikhBiasa(item.tarikh); // MENAMBAH KEMASAN TARIKH MALAYSIA
 
                     const card = document.createElement('div');
                     card.className = "bg-white border border-gray-200 hover:border-blue-300 rounded-xl p-5 shadow-sm space-y-4 transition-all";
@@ -903,7 +925,7 @@
                                 <p class="text-xs text-gray-500">No. KP: <span class="font-semibold text-gray-700">${item.ic}</span> • Kelas: <span class="font-semibold text-gray-700">${item.kelas || '-'}</span></p>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <span class="text-xs text-gray-400 font-medium">${item.tarikh || ''}</span>
+                                <span class="text-xs text-gray-500 font-semibold bg-gray-100 px-2.5 py-1 rounded-md">${tarikhKemas}</span>
                                 <button onclick="padamAduan(${actualIndex})" class="text-red-500 hover:bg-red-50 p-1.5 rounded-lg text-xs font-bold transition-all" title="Padam Aduan">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
@@ -975,7 +997,6 @@
             }
         }
 
-        // FUNGSI MEMADAM ADUAN DARI LOCALSTORAGE DAN GOOGLE SHEETS
         async function padamAduan(index) {
             if (index !== -1 && aduanList[index]) {
                 if (confirm('Adakah anda pasti ingin memadam rekod aduan ini daripada sistem dan Google Sheets?')) {
