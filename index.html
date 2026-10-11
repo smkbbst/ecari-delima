@@ -30,17 +30,15 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
-        /* CSS: Menyahaktifkan Pilihan Teks (Disable Text Selection) */
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #F4F7FC; 
-            -webkit-user-select: none; /* Safari */
-            -moz-user-select: none;    /* Firefox */
-            -ms-user-select: none;     /* IE 10+ / Edge */
-            user-select: none;         /* Standard */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
-        /* Benarkan pilihan teks pada kotak input/textarea/select supaya pengguna boleh menaip */
         input, textarea, select {
             -webkit-user-select: text !important;
             -moz-user-select: text !important;
@@ -416,13 +414,11 @@
 
     <!-- SKRIP PERLINDUNGAN HAK CIPTA & INTERAKSI -->
     <script>
-        // 1. Sekat Klik Kanan (Context Menu)
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             alert('Fungsi klik kanan telah dinyahaktifkan untuk melindungi hak cipta kandungan.');
         });
 
-        // 2. Sekat Pintasan Kekunci (F12, Inspect Element, View Source, Copy, Save)
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F12' || e.keyCode === 123) {
                 e.preventDefault();
@@ -453,7 +449,6 @@
             }
         });
 
-        // 3. Detect & Ganggu Penggunaan DevTools
         (function() {
             const threshold = 160;
             setInterval(function() {
@@ -466,7 +461,7 @@
 
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
-        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
+        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
 
         let dataMuridList = [];
         let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
@@ -510,7 +505,7 @@
 
                 const btn = document.getElementById(`btn-${t}`);
                 if (btn) {
-                    btn.classList.remove('bg-delima-lightBlue', 'shadow');
+                    btn.classList.remove('bg-white/10');
                     btn.classList.add('bg-white/10');
                 }
             });
@@ -663,7 +658,7 @@
             }
         }
 
-        // FUNGSI KEMASKINI DROPDOWN KELAS (FLEXIBLE MATCHING)
+        // FUNGSI KEMASKINI DROPDOWN KELAS (DENGAN TINGKATAN & PPKI ASING)
         function kemaskiniDropdownKelas(idTingkatan = 'selectTingkatan', idKelas = 'selectKelas') {
             const tingkatanPilihan = document.getElementById(idTingkatan).value.trim();
             const selectKelas = document.getElementById(idKelas);
@@ -677,17 +672,15 @@
                 return;
             }
 
-            const matchDigit = tingkatanPilihan.match(/\d+/);
-            const nomborTingkatan = matchDigit ? matchDigit[0] : "";
-
             const kelasUnik = [...new Set(
                 dataMuridList
                     .filter(m => {
                         if (!m.tingkatan) return false;
                         const valSheet = m.tingkatan.toString().trim().toLowerCase();
                         const valPilihan = tingkatanPilihan.toLowerCase();
-                        
-                        return valSheet === valPilihan || (nomborTingkatan && valSheet.includes(nomborTingkatan));
+
+                        // Padanan Tepat Terus (Elak PPKI bertembung dengan Tingkatan Biasa)
+                        return valSheet === valPilihan;
                     })
                     .map(m => m.kelas)
                     .filter(k => k && k.toString().trim() !== "")
@@ -727,7 +720,7 @@
             }
 
             const senaraiHasil = dataMuridList.filter(m => {
-                const padanTingkatan = m.tingkatan ? m.tingkatan.toString().trim().toLowerCase().includes(tingkatan.toLowerCase().replace("tingkatan ", "")) : true;
+                const padanTingkatan = m.tingkatan ? m.tingkatan.toString().trim().toLowerCase() === tingkatan.toLowerCase() : true;
                 const padanKelas = m.kelas ? m.kelas.toString().trim().toLowerCase() === kelas.toLowerCase() : false;
                 const padanNama = m.nama ? m.nama.toString().toUpperCase().includes(namaInput.toUpperCase()) : false;
                 return padanTingkatan && padanKelas && padanNama;
@@ -1015,7 +1008,6 @@
                     card.className = "bg-white border border-gray-200 hover:border-blue-300 rounded-xl p-5 shadow-sm space-y-4 transition-all";
                     
                     card.innerHTML = `
-                        <!-- Header Card -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
                             <div>
                                 <h4 class="text-md font-bold text-gray-800">${item.nama}</h4>
@@ -1029,7 +1021,6 @@
                             </div>
                         </div>
 
-                        <!-- Perincian Isu & Masalah -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                 <p class="text-gray-400 font-semibold uppercase">Jenis Isu</p>
@@ -1041,7 +1032,6 @@
                             </div>
                         </div>
 
-                        <!-- Kemaskini Status & Maklum Balas -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 border-t">
                             <div class="md:col-span-1">
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Status Aduan</label>
@@ -1093,7 +1083,7 @@
             }
         }
 
-        // FUNGSI PEMADAMAN ADUAN (DENGAN BEACON / TEXT PLAIN)
+        // FUNGSI PEMADAMAN DENGAN PENERIMAAN TERUS DI GOOGLE SHEETS
         async function padamAduan(index) {
             if (index !== -1 && aduanList[index]) {
                 if (confirm('Adakah anda pasti ingin memadam rekod aduan ini daripada sistem dan Google Sheets?')) {
