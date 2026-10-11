@@ -249,7 +249,7 @@
                 
                 <form onsubmit="event.preventDefault(); sahkanAksesAdmin();" class="space-y-3">
                     <input type="password" id="adminPassword" placeholder="Masukkan Kata Laluan Admin" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none text-center">
-                    <p class="text-xs text-gray-400">Kata laluan demo: <span class="font-mono font-bold text-gray-600">admin123</span></p>
+                    
                     <button type="submit" class="w-full bg-delima-blue hover:bg-delima-lightBlue text-white font-semibold py-2.5 rounded-lg transition-all">Log Masuk Portal Admin</button>
                 </form>
                 <div id="msgAdminLoginError" class="hidden text-xs text-red-500 font-semibold">Kata laluan tidak sah!</div>
@@ -741,7 +741,7 @@
             const pwd = document.getElementById('adminPassword').value;
             const msgErr = document.getElementById('msgAdminLoginError');
 
-            if (pwd === 'admin123') {
+            if (pwd === 'be@960#') {
                 isAdminLoggedIn = true;
                 msgErr.classList.add('hidden');
                 document.getElementById('adminLoginCard').classList.add('hidden');
@@ -956,4 +956,4 @@
         }
     </script>
 </body>
-</html>
+</html>pwd
