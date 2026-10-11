@@ -107,7 +107,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih Tingkatan <span class="text-red-500">*</span></label>
-                            <select id="selectTingkatan" onchange="kemaskiniDropdownKelas()" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue focus:border-delima-lightBlue outline-none" required>
+                            <select id="selectTingkatan" onchange="kemaskiniDropdownKelas('selectTingkatan', 'selectKelas')" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue focus:border-delima-lightBlue outline-none" required>
                                 <option value="">-- Pilih Tingkatan --</option>
                                 <option value="Tingkatan 1">Tingkatan 1</option>
                                 <option value="Tingkatan 2">Tingkatan 2</option>
@@ -167,9 +167,31 @@
                         <input type="text" id="aduanNama" placeholder="Masukkan nama penuh" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none uppercase" required>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Kelas <span class="text-red-500">*</span></label>
-                        <input type="text" id="aduanKelas" placeholder="Contoh: 1 AMANAH / PPKI ARIF 1" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none uppercase" required>
+                    <!-- DDL TINGKATAN & KELAS DINAMIK UNTUK ADUAN -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih Tingkatan <span class="text-red-500">*</span></label>
+                            <select id="aduanTingkatan" onchange="kemaskiniDropdownKelas('aduanTingkatan', 'aduanKelas')" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue focus:border-delima-lightBlue outline-none" required>
+                                <option value="">-- Pilih Tingkatan --</option>
+                                <option value="Tingkatan 1">Tingkatan 1</option>
+                                <option value="Tingkatan 2">Tingkatan 2</option>
+                                <option value="Tingkatan 3">Tingkatan 3</option>
+                                <option value="Tingkatan 4">Tingkatan 4</option>
+                                <option value="Tingkatan 5">Tingkatan 5</option>
+                                <option value="Tingkatan 6">Tingkatan 6</option>
+                                <option value="PPKI 1">PPKI 1</option>
+                                <option value="PPKI 2">PPKI 2</option>
+                                <option value="PPKI 3">PPKI 3</option>
+                                <option value="PPKI 4">PPKI 4</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih Kelas <span class="text-red-500">*</span></label>
+                            <select id="aduanKelas" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue focus:border-delima-lightBlue outline-none" required disabled>
+                                <option value="">-- Sila pilih tingkatan dahulu --</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div>
@@ -429,14 +451,12 @@
             return true;
         }
 
-        // FUNGSI UNTUK MENGAMBIL EVENT TAIPAN DAN MENAMPILKAN RALAT SERTA-MERTA
         function daftarPengesanInputLive(inputId, errorMsgId) {
             const inputEl = document.getElementById(inputId);
             const errorEl = document.getElementById(errorMsgId);
 
             if (!inputEl || !errorEl) return;
 
-            // Mesej ditunjukkan sebaik sahaja pengguna selesai menaip dan klik keluar dari petak
             inputEl.addEventListener('blur', function() {
                 const val = this.value.trim();
                 if (val.length > 0) {
@@ -450,7 +470,6 @@
                 }
             });
 
-            // Menyemak secara terus sewaktu menaip untuk menghilangkan ralat apabila nombor menjadi sah
             inputEl.addEventListener('input', function() {
                 if (sahkanNoKP(this.value.trim())) {
                     errorEl.classList.add('hidden');
@@ -460,8 +479,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             muatTurunDataGoogleSheets();
-            
-            // Daftar pengesan input langsung untuk Borang Aduan & Semakan Status
             daftarPengesanInputLive('aduanIC', 'msgAduanICError');
             daftarPengesanInputLive('semakIC', 'msgSemakICError');
         });
@@ -536,9 +553,10 @@
             }
         }
 
-        function kemaskiniDropdownKelas() {
-            const tingkatanPilihan = document.getElementById('selectTingkatan').value.trim();
-            const selectKelas = document.getElementById('selectKelas');
+        // FUNGSI UTAMA DROPDOWN KELAS SERBAGUNA (UNTUK CARIAN & BORANG ADUAN)
+        function kemaskiniDropdownKelas(idTingkatan = 'selectTingkatan', idKelas = 'selectKelas') {
+            const tingkatanPilihan = document.getElementById(idTingkatan).value.trim();
+            const selectKelas = document.getElementById(idKelas);
 
             selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
             selectKelas.value = "";
@@ -642,9 +660,10 @@
             });
         }
 
-        // BORANG ADUAN (PENYEMAKAN MYKAD KETAT)
+        // BORANG ADUAN (DENGAN DDL KELAS & VALIDASI MYKAD KETAT)
         async function hantarAduan() {
             const nama = document.getElementById('aduanNama').value.trim();
+            const tingkatan = document.getElementById('aduanTingkatan').value.trim();
             const kelas = document.getElementById('aduanKelas').value.trim();
             const ic = document.getElementById('aduanIC').value.trim();
             const isu = document.getElementById('aduanIsu').value;
@@ -676,7 +695,7 @@
             const newAduan = {
                 id: Date.now(),
                 nama: nama.toUpperCase(),
-                kelas: kelas.toUpperCase(),
+                kelas: (tingkatan + " - " + kelas).toUpperCase(),
                 ic: cleanIC,
                 isu: isu,
                 masalah: masalah,
@@ -701,6 +720,7 @@
             localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
 
             document.getElementById('formAduan').reset();
+            document.getElementById('aduanKelas').disabled = true;
 
             btnHantar.disabled = false;
             btnHantar.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -722,7 +742,6 @@
 
             if (!icInput) return;
 
-            // PENYEMAKAN MYKAD MALAYSIA
             if (!sahkanNoKP(icInput)) {
                 msgICError.classList.remove('hidden');
                 return;
@@ -788,7 +807,7 @@
             const pwd = document.getElementById('adminPassword').value;
             const msgErr = document.getElementById('msgAdminLoginError');
 
-            if (pwd === 'admin123') { // Anda boleh menukar kata laluan admin di sini
+            if (pwd === 'admin123') { 
                 isAdminLoggedIn = true;
                 msgErr.classList.add('hidden');
                 document.getElementById('adminLoginCard').classList.add('hidden');
