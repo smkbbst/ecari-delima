@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -176,6 +175,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nombor Kad Pengenalan <span class="text-red-500">*</span></label>
                         <input type="text" id="aduanIC" placeholder="Contoh: 080102105544 (12 Digit tanpa dash -)" maxlength="12" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none" required>
+                        <p id="msgAduanICError" class="hidden text-xs text-red-500 font-bold mt-1">No. Kad Pengenalan tidak sah</p>
                         <p class="text-xs text-gray-400 mt-1">Sila masukkan 12 digit nombor MyKad tanpa sebarang tanda sempang (-) atau ruang.</p>
                     </div>
 
@@ -227,6 +227,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nombor Kad Pengenalan <span class="text-red-500">*</span></label>
                         <input type="text" id="semakIC" placeholder="Masukkan 12 digit No. KP tanpa (-)" maxlength="12" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none" required>
+                        <p id="msgSemakICError" class="hidden text-xs text-red-500 font-bold mt-1">No. Kad Pengenalan tidak sah</p>
                     </div>
                     <button type="submit" class="w-full bg-delima-blue hover:bg-delima-lightBlue text-white font-semibold py-3 px-6 rounded-lg transition-all shadow-md flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -390,24 +391,19 @@
 
         // FUNGSI KETAT VALIDASI PENUH NOMBOR KAD PENGENALAN MALAYSIA (MYKAD)
         function sahkanNoKP(ic) {
-            // 1. Buang ruang dan sempang (-)
             const cleanIC = String(ic).trim().replace(/[-\s]/g, '');
 
-            // 2. Mesti TEPAT 12 digit angka sahaja
             if (!/^\d{12}$/.test(cleanIC)) return false;
 
-            // 3. Ekstrak Komponen MyKad
             const yy = parseInt(cleanIC.substring(0, 2), 10);
             const mm = parseInt(cleanIC.substring(2, 4), 10);
             const dd = parseInt(cleanIC.substring(4, 6), 10);
             const stateStr = cleanIC.substring(6, 8);
             const last4Str = cleanIC.substring(8, 12);
 
-            // 4. Semak Julat Asas Bulan (01 - 12) & Hari (01 - 31)
             if (isNaN(mm) || mm < 1 || mm > 12) return false;
             if (isNaN(dd) || dd < 1 || dd > 31) return false;
 
-            // 5. Semak ketepatan tarikh kalendar sebenar (Mencegah Date Rollover JavaScript)
             const fullYear = yy > 30 ? 1900 + yy : 2000 + yy;
             const testDate = new Date(fullYear, mm - 1, dd);
 
@@ -419,7 +415,6 @@
                 return false;
             }
 
-            // 6. Semak Kod Negeri JPN Sah (01-16, 21-59, 82-93, 98-99)
             const stateCode = parseInt(stateStr, 10);
             const validStateCodes = [
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -429,14 +424,46 @@
             ];
             if (!validStateCodes.includes(stateCode)) return false;
 
-            // 7. Semak 4 Digit Terakhir (Tidak boleh "0000")
             if (last4Str === "0000") return false;
 
             return true;
         }
 
+        // FUNGSI UNTUK MENGAMBIL EVENT TAIPAN DAN MENAMPILKAN RALAT SERTA-MERTA
+        function daftarPengesanInputLive(inputId, errorMsgId) {
+            const inputEl = document.getElementById(inputId);
+            const errorEl = document.getElementById(errorMsgId);
+
+            if (!inputEl || !errorEl) return;
+
+            // Mesej ditunjukkan sebaik sahaja pengguna selesai menaip dan klik keluar dari petak
+            inputEl.addEventListener('blur', function() {
+                const val = this.value.trim();
+                if (val.length > 0) {
+                    if (!sahkanNoKP(val)) {
+                        errorEl.classList.remove('hidden');
+                    } else {
+                        errorEl.classList.add('hidden');
+                    }
+                } else {
+                    errorEl.classList.add('hidden');
+                }
+            });
+
+            // Menyemak secara terus sewaktu menaip untuk menghilangkan ralat apabila nombor menjadi sah
+            inputEl.addEventListener('input', function() {
+                if (sahkanNoKP(this.value.trim())) {
+                    errorEl.classList.add('hidden');
+                }
+            });
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             muatTurunDataGoogleSheets();
+            
+            // Daftar pengesan input langsung untuk Borang Aduan & Semakan Status
+            daftarPengesanInputLive('aduanIC', 'msgAduanICError');
+            daftarPengesanInputLive('semakIC', 'msgSemakICError');
         });
 
         async function muatTurunDataGoogleSheets() {
@@ -627,15 +654,17 @@
             const btnText = document.getElementById('btnHantarText');
             const msgError = document.getElementById('msgAduanError');
             const msgSuccess = document.getElementById('msgAduanSuccess');
+            const msgICError = document.getElementById('msgAduanICError');
 
             msgError.classList.add('hidden');
             msgSuccess.classList.add('hidden');
 
             // PENYEMAKAN MYKAD MALAYSIA
             if (!sahkanNoKP(ic)) {
-                msgError.textContent = "No. Kad Pengenalan tidak sah";
-                msgError.classList.remove('hidden');
+                msgICError.classList.remove('hidden');
                 return;
+            } else {
+                msgICError.classList.add('hidden');
             }
 
             btnHantar.disabled = true;
@@ -684,6 +713,7 @@
         function semakStatusAduan() {
             const icInput = document.getElementById('semakIC').value.trim();
             const msgError = document.getElementById('msgStatusError');
+            const msgICError = document.getElementById('msgSemakICError');
             const hasilContainer = document.getElementById('hasilSemakan');
 
             msgError.classList.add('hidden');
@@ -694,9 +724,10 @@
 
             // PENYEMAKAN MYKAD MALAYSIA
             if (!sahkanNoKP(icInput)) {
-                msgError.textContent = "No. Kad Pengenalan tidak sah";
-                msgError.classList.remove('hidden');
+                msgICError.classList.remove('hidden');
                 return;
+            } else {
+                msgICError.classList.add('hidden');
             }
 
             const cleanIC = icInput.replace(/[-\s]/g, '');
