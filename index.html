@@ -29,7 +29,24 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #F4F7FC; }
+        
+        /* CSS: Menyahaktifkan Pilihan Teks (Disable Text Selection) */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #F4F7FC; 
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none;    /* Firefox */
+            -ms-user-select: none;     /* IE 10+ / Edge */
+            user-select: none;         /* Standard */
+        }
+
+        /* Benarkan pilihan teks pada kotak carian/borang supaya pengguna boleh menaip */
+        input, textarea, select {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-gray-800">
@@ -397,9 +414,64 @@
         </div>
     </footer>
 
+    <!-- SKRIP PERLINDUNGAN HAK CIPTA & INTERAKSI (LANGKAH 1) -->
+    <script>
+        // 1. Sekat Klik Kanan (Context Menu)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            alert('Fungsi klik kanan telah dinyahaktifkan untuk melindungi hak cipta kandungan.');
+        });
+
+        // 2. Sekat Pintasan Kekunci (F12, Inspect Element, View Source, Copy, Save)
+        document.addEventListener('keydown', function(e) {
+            // Sekat F12
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Sekat Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (Inspect Element / Console)
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Sekat Ctrl+U (View Source)
+            if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Sekat Ctrl+S (Save Page)
+            if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Sekat Ctrl+C (Copy) kecuali di dalam input/textarea
+            if (e.ctrlKey && (e.key === 'C' || e.key === 'c')) {
+                const targetTag = e.target.tagName.toLowerCase();
+                if (targetTag !== 'input' && targetTag !== 'textarea') {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+
+        // 3. Detect & Ganggu Penggunaan DevTools (Developer Tools)
+        (function() {
+            const threshold = 160;
+            setInterval(function() {
+                if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+                    document.body.innerHTML = "<div class='flex items-center justify-center min-h-screen text-center text-red-600 font-bold text-xl p-8 bg-white'>Akses Developer Tools dikesan. Halaman ini dilindungi.</div>";
+                }
+            }, 1000);
+        })();
+    </script>
+
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
-        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
+        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
 
         let dataMuridList = [];
         let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
@@ -462,9 +534,7 @@
             }
         }
 
-        // FUNGSI TARIKH DIPERBAIKI SEPENUHNYA
         function formatTarikhBiasa(tarikhRaw) {
-            // Jika tarikh langsung tiada / kosong, janji pulangkan tarikh semasa sebagai ganti
             if (!tarikhRaw || tarikhRaw === "" || tarikhRaw === "undefined" || tarikhRaw === "null") {
                 return new Date().toLocaleString("ms-MY", {
                     timeZone: "Asia/Kuala_Lumpur",
@@ -479,7 +549,6 @@
 
             try {
                 const dateObj = new Date(tarikhRaw);
-                // Jika ia ISO string / valid date
                 if (!isNaN(dateObj.getTime())) {
                     return dateObj.toLocaleString("ms-MY", {
                         timeZone: "Asia/Kuala_Lumpur",
@@ -491,7 +560,6 @@
                         hour12: true
                     });
                 }
-                // Jika sudah string biasa dari Sheets (e.g. 11/10/2026, 4:30:00 PM)
                 return String(tarikhRaw);
             } catch (e) {
                 return String(tarikhRaw);
@@ -937,8 +1005,6 @@
             } else {
                 filteredList.forEach((item) => {
                     const actualIndex = aduanList.findIndex(a => a.id === item.id);
-                    
-                    // PEMBAIKAN UTAMA: Dapatkan formatted string tarikh tanpa syarat 'if' yang membuang elemen
                     const tarikhKemas = formatTarikhBiasa(item.tarikh);
 
                     const card = document.createElement('div');
