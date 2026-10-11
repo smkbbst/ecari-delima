@@ -30,7 +30,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
-        /* CSS: Menyahaktifkan Pilihan Teks (Disable Text Selection) */
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #F4F7FC; 
@@ -40,7 +39,6 @@
             user-select: none;
         }
 
-        /* Benarkan pilihan teks pada kotak input/textarea/select supaya pengguna boleh menaip */
         input, textarea, select {
             -webkit-user-select: text !important;
             -moz-user-select: text !important;
@@ -416,13 +414,11 @@
 
     <!-- SKRIP PERLINDUNGAN HAK CIPTA & INTERAKSI -->
     <script>
-        // Sekat Klik Kanan (Context Menu)
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             alert('Fungsi klik kanan telah dinyahaktifkan untuk melindungi hak cipta kandungan.');
         });
 
-        // Sekat Pintasan Kekunci (F12, Inspect Element, View Source, Copy, Save)
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F12' || e.keyCode === 123) {
                 e.preventDefault();
@@ -456,8 +452,7 @@
 
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
-        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
-
+        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
 
         let dataMuridList = [];
         let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
@@ -1077,6 +1072,7 @@
             }
         }
 
+        // FUNGSI PEMADAMAN DENGAN PENYELARASAN SYNC ANALISIS TERKINI
         async function padamAduan(index) {
             if (index !== -1 && aduanList[index]) {
                 if (confirm('Adakah anda pasti ingin memadam rekod aduan ini daripada sistem dan Google Sheets?')) {
@@ -1097,7 +1093,15 @@
                         }
                     }
 
+                    // 1. Buang dari memori tempatan
                     aduanList.splice(index, 1);
+
+                    // 2. Susun semula rowIndex untuk baki rekod supaya sentiasa sepadan dengan baris Google Sheets
+                    aduanList.forEach((item, idx) => {
+                        item.rowIndex = idx + 2;
+                    });
+
+                    // 3. Simpan ke LocalStorage & Kemaskini semula Analisis/KPI/Carta
                     localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
                     renderAdminAnalytics();
                 }
