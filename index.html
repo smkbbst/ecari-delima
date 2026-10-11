@@ -399,7 +399,7 @@
 
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
-        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
+        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
 
         let dataMuridList = [];
         let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
@@ -410,7 +410,6 @@
         let chartIsuInstance = null;
         let chartRankIsuInstance = null;
 
-        // FUNGSI NAVIGASI TAB TERKONTROL DENGAN DIRECT INLINE DISPLAY
         function switchTab(tabName) {
             const maintenanceView = document.getElementById('maintenanceView');
 
@@ -463,10 +462,24 @@
             }
         }
 
+        // FUNGSI TARIKH DIPERBAIKI SEPENUHNYA
         function formatTarikhBiasa(tarikhRaw) {
-            if (!tarikhRaw || tarikhRaw === "") return '';
+            // Jika tarikh langsung tiada / kosong, janji pulangkan tarikh semasa sebagai ganti
+            if (!tarikhRaw || tarikhRaw === "" || tarikhRaw === "undefined" || tarikhRaw === "null") {
+                return new Date().toLocaleString("ms-MY", {
+                    timeZone: "Asia/Kuala_Lumpur",
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true
+                });
+            }
+
             try {
                 const dateObj = new Date(tarikhRaw);
+                // Jika ia ISO string / valid date
                 if (!isNaN(dateObj.getTime())) {
                     return dateObj.toLocaleString("ms-MY", {
                         timeZone: "Asia/Kuala_Lumpur",
@@ -478,6 +491,7 @@
                         hour12: true
                     });
                 }
+                // Jika sudah string biasa dari Sheets (e.g. 11/10/2026, 4:30:00 PM)
                 return String(tarikhRaw);
             } catch (e) {
                 return String(tarikhRaw);
@@ -692,7 +706,6 @@
             });
         }
 
-        // FUNGSI HANTAR ADUAN BAHARU
         async function hantarAduan() {
             const nama = document.getElementById('aduanNama').value.trim();
             const kelas = document.getElementById('aduanKelas').value.trim();         
@@ -765,7 +778,6 @@
             msgSuccess.classList.remove('hidden');
         }
 
-        // SEMAK STATUS ADUAN
         function semakStatusAduan() {
             const icInput = document.getElementById('semakIC').value.trim();
             const msgError = document.getElementById('msgStatusError');
@@ -838,7 +850,6 @@
             hasilContainer.classList.remove('hidden');
         }
 
-        // LOG MASUK ADMIN
         async function sahkanAksesAdmin() {
             const pwd = document.getElementById('adminPassword').value;
             const msgErr = document.getElementById('msgAdminLoginError');
@@ -926,6 +937,8 @@
             } else {
                 filteredList.forEach((item) => {
                     const actualIndex = aduanList.findIndex(a => a.id === item.id);
+                    
+                    // PEMBAIKAN UTAMA: Dapatkan formatted string tarikh tanpa syarat 'if' yang membuang elemen
                     const tarikhKemas = formatTarikhBiasa(item.tarikh);
 
                     const card = document.createElement('div');
@@ -939,7 +952,7 @@
                                 <p class="text-xs text-gray-500">No. KP: <span class="font-semibold text-gray-700">${item.ic}</span> • Kelas: <span class="font-semibold text-gray-700">${item.kelas || '-'}</span></p>
                             </div>
                             <div class="flex items-center space-x-2">
-                                ${tarikhKemas ? `<span class="text-xs text-gray-600 font-semibold bg-gray-100 px-2.5 py-1 rounded-md border border-gray-200">${tarikhKemas}</span>` : ''}
+                                <span class="text-xs text-gray-600 font-semibold bg-gray-100 px-2.5 py-1 rounded-md border border-gray-200">${tarikhKemas}</span>
                                 <button onclick="padamAduan(${actualIndex})" class="text-red-500 hover:bg-red-50 p-1.5 rounded-lg text-xs font-bold transition-all" title="Padam Aduan">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
