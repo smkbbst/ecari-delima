@@ -299,6 +299,10 @@
                         <p class="text-xs text-gray-500">Akses Khas Admin DELIMa SMK Bandar Baru Salak Tinggi</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="muatAduanDariGoogleSheets()" class="bg-blue-50 hover:bg-blue-100 text-delima-blue px-3 py-2 rounded-lg text-xs font-semibold border border-blue-200 transition-all flex items-center space-x-1.5">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>Refresh Data Sheets</span>
+                        </button>
                         <div class="flex items-center space-x-2 bg-yellow-50 px-3 py-1.5 rounded-lg border border-yellow-200">
                             <span class="text-xs font-semibold text-yellow-800">Mod Penyelenggaraan:</span>
                             <label class="relative inline-flex items-center cursor-pointer">
@@ -452,10 +456,10 @@
 
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
-        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
+        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
 
         let dataMuridList = [];
-        let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
+        let aduanList = [];
 
         let isAdminLoggedIn = false;
         let isMaintenanceMode = false;
@@ -511,7 +515,7 @@
             }
 
             if (tabName === 'admin' && isAdminLoggedIn) {
-                renderAdminAnalytics();
+                muatAduanDariGoogleSheets();
             }
         }
 
@@ -630,6 +634,22 @@
                 }
             } catch (err) {
                 console.log("Menjalankan sistem dengan simpanan data sedia ada.");
+            }
+        }
+
+        async function muatAduanDariGoogleSheets() {
+            if (!GOOGLE_SHEETS_SCRIPT_URL) return;
+            try {
+                const response = await fetch(GOOGLE_SHEETS_SCRIPT_URL + "?action=getAduan");
+                if (response.ok) {
+                    const dataAduanSheet = await response.json();
+                    if (Array.isArray(dataAduanSheet)) {
+                        aduanList = dataAduanSheet;
+                        renderAdminAnalytics();
+                    }
+                }
+            } catch (err) {
+                console.log("Gagal memuat aduan terkini dari Google Sheets.");
             }
         }
 
@@ -808,20 +828,6 @@
                 }
             }
 
-            const localAduan = {
-                id: Date.now(),
-                tarikh: new Date().toISOString(),
-                nama: nama.toUpperCase(),
-                kelas: kelas,
-                ic: ic,
-                isu: isu,
-                masalah: masalah,
-                status: "Baru",
-                maklumBalas: ""
-            };
-            aduanList.push(localAduan);
-            localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
-
             document.getElementById('formAduan').reset();
             document.getElementById('aduanKelas').disabled = true;
 
@@ -832,7 +838,7 @@
             msgSuccess.classList.remove('hidden');
         }
 
-        function semakStatusAduan() {
+        async function semakStatusAduan() {
             const icInput = document.getElementById('semakIC').value.trim();
             const msgError = document.getElementById('msgStatusError');
             const msgICError = document.getElementById('msgSemakICError');
@@ -849,6 +855,15 @@
                 return;
             } else {
                 msgICError.classList.add('hidden');
+            }
+
+            if (GOOGLE_SHEETS_SCRIPT_URL) {
+                try {
+                    const res = await fetch(GOOGLE_SHEETS_SCRIPT_URL + "?action=getAduan");
+                    if (res.ok) {
+                        aduanList = await res.json();
+                    }
+                } catch(e) {}
             }
 
             const padanan = aduanList.filter(a => a.ic === icInput);
@@ -914,22 +929,7 @@
                 document.getElementById('adminLoginCard').style.display = 'none';
                 document.getElementById('adminDashboard').classList.remove('hidden');
 
-                if (GOOGLE_SHEETS_SCRIPT_URL) {
-                    try {
-                        const response = await fetch(GOOGLE_SHEETS_SCRIPT_URL + "?action=getAduan");
-                        if (response.ok) {
-                            const dataAduanSheet = await response.json();
-                            if (Array.isArray(dataAduanSheet) && dataAduanSheet.length > 0) {
-                                aduanList = dataAduanSheet;
-                                localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
-                            }
-                        }
-                    } catch (err) {
-                        console.log("Menggunakan data aduan setempat.");
-                    }
-                }
-
-                renderAdminAnalytics();
+                await muatAduanDariGoogleSheets();
             } else {
                 msgErr.classList.remove('hidden');
             }
@@ -1046,7 +1046,6 @@
         async function kemaskiniStatusAdmin(index, field, value) {
             if (index !== -1 && aduanList[index]) {
                 aduanList[index][field] = value;
-                localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
                 
                 const targetRow = aduanList[index].rowIndex || (index + 2);
 
@@ -1072,7 +1071,7 @@
             }
         }
 
-        // FUNGSI PEMADAMAN DENGAN PENYELARASAN SYNC ANALISIS TERKINI
+        // FUNGSI PEMADAMAN BERSIFAT ASYNCHRONOUS LENGKAP
         async function padamAduan(index) {
             if (index !== -1 && aduanList[index]) {
                 if (confirm('Adakah anda pasti ingin memadam rekod aduan ini daripada sistem dan Google Sheets?')) {
@@ -1080,6 +1079,7 @@
 
                     if (GOOGLE_SHEETS_SCRIPT_URL) {
                         try {
+                            // 1. Tunggu respons pemadaman dari Google Sheets
                             await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1088,22 +1088,18 @@
                                     rowIndex: targetRow
                                 })
                             });
+
+                            // 2. Beri sedikit masa buffer untuk Google Apps Script memproses sheet
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+
+                            // 3. Muat semula data terkini terus dari Google Sheets supaya 100% sync
+                            await muatAduanDariGoogleSheets();
+
                         } catch (e) {
                             console.log("Gagal memadam dari Google Sheets.");
+                            alert("Terlalu banyak permintaan atau talian terputus. Sila tekan butang Refresh Data Sheets.");
                         }
                     }
-
-                    // 1. Buang dari memori tempatan
-                    aduanList.splice(index, 1);
-
-                    // 2. Susun semula rowIndex untuk baki rekod supaya sentiasa sepadan dengan baris Google Sheets
-                    aduanList.forEach((item, idx) => {
-                        item.rowIndex = idx + 2;
-                    });
-
-                    // 3. Simpan ke LocalStorage & Kemaskini semula Analisis/KPI/Carta
-                    localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
-                    renderAdminAnalytics();
                 }
             }
         }
