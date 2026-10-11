@@ -146,27 +146,7 @@
 
                 <div id="msgCarianError" class="hidden mt-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg text-red-700 text-sm font-medium"></div>
 
-                <div id="hasilCarian" class="hidden mt-6 p-6 bg-blue-50 border border-blue-100 rounded-xl space-y-4">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <span class="inline-block px-2.5 py-1 text-xs font-semibold bg-delima-blue text-white rounded mb-2" id="resKelas"></span>
-                            <h3 class="text-lg font-bold text-gray-800" id="resNama"></h3>
-                        </div>
-                        <i class="fa-solid fa-circle-check text-2xl text-green-500"></i>
-                    </div>
-
-                    <div class="bg-white p-4 rounded-lg border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div>
-                            <p class="text-xs text-gray-500 font-medium uppercase">Alamat E-mel DELIMa / MOE</p>
-                            <p class="text-base sm:text-lg font-mono font-bold text-delima-blue break-all" id="resEmail"></p>
-                        </div>
-                        <button onclick="salinEmail()" class="bg-delima-lightBlue hover:bg-delima-blue text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 shrink-0">
-                            <i class="fa-regular fa-copy"></i>
-                            <span>Salin E-mel</span>
-                        </button>
-                    </div>
-                    <div id="msgSalin" class="hidden text-xs text-green-600 font-semibold text-right">E-mel berjaya disalin</div>
-                </div>
+                <div id="hasilCarian" class="hidden mt-6 space-y-4"></div>
             </div>
         </section>
 
@@ -296,7 +276,7 @@
                     </div>
                 </div>
 
-                <!-- KPI / STATISTIK UTAMA (INTERAKTIF FILTER) -->
+                <!-- KPI / STATISTIK UTAMA -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div id="cardFilterAll" onclick="setFilterStatus('Semua')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600 cursor-pointer hover:shadow-md transition-all ring-2 ring-blue-500">
                         <p class="text-xs font-semibold text-gray-500 uppercase">JUMLAH ADUAN</p>
@@ -390,7 +370,7 @@
     <footer class="bg-delima-blue text-white border-t border-delima-lightBlue/30 mt-auto py-6">
         <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
             <p class="text-xs tracking-wider uppercase font-medium text-delima-accent">SMK BANDAR BARU SALAK TINGGI</p>
-            <p class="text-sm font-medium">Direka dan dicipta oleh CikguShazanaShafie™</p>
+            <p class="text-sm font-medium">Hak Cipta Terpelihara © CikguShazanaShafie</p>
         </div>
     </footer>
 
@@ -398,27 +378,8 @@
     <script>
         const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
 
-        let dataMuridList = [
-            { tingkatan: "Tingkatan 1", kelas: "1 AMANAH", nama: "AHMAD DANIAL BIN MOHD ROSLI", email: "m-12345678@moe-dl.edu.my" },
-            { tingkatan: "Tingkatan 1", kelas: "1 AMANAH", nama: "SITI NURHALIZA BINTI AMIR", email: "m-87654321@moe-dl.edu.my" },
-            { tingkatan: "Tingkatan 3", kelas: "3 CEKAL", nama: "MUHAMMAD HAZIM BIN ZULKIFLI", email: "m-11223344@moe-dl.edu.my" },
-            { tingkatan: "Tingkatan 5", kelas: "5 STEM 1", nama: "NUR AISYAH BINTI KHALID", email: "m-55667788@moe-dl.edu.my" },
-            { tingkatan: "PPKI 1", kelas: "PPKI ARIF 1", nama: "MUHAMMAD ADAM BIN ROSLI", email: "m-99887766@moe-dl.edu.my" },
-            { tingkatan: "PPKI 2", kelas: "PPKI ARIF 2", nama: "NUR AMIRA BINTI ZAKARIA", email: "m-44556677@moe-dl.edu.my" }
-        ];
-
-        let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [
-            {
-                id: 1,
-                nama: "AHMAD DANIAL BIN MOHD ROSLI",
-                kelas: "1 AMANAH",
-                ic: "080102105544",
-                isu: "Reset Kata Laluan",
-                masalah: "Lupa kata laluan selepas cuti sekolah.",
-                status: "Baru",
-                maklumBalas: ""
-            }
-        ];
+        let dataMuridList = [];
+        let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
 
         let isAdminLoggedIn = false;
         let isMaintenanceMode = false;
@@ -445,14 +406,11 @@
             }
         }
 
-        // LOGIK PENJAGAAN MOD PENYELENGGARAAN & TAB SWITCHING
         function tukarModPenyelenggaraan(status) {
             isMaintenanceMode = status;
-            
             const maintenanceView = document.getElementById('maintenanceView');
 
             if (isMaintenanceMode) {
-                // Jika sedang berada di tab selain admin, tunjukkan paparan penyelenggaraan
                 const activeTab = document.querySelector('section:not(.hidden-tab)');
                 if (activeTab && activeTab.id !== 'tab-admin') {
                     activeTab.classList.add('hidden-tab');
@@ -461,16 +419,13 @@
             } else {
                 maintenanceView.classList.add('hidden-tab');
                 const activeTab = document.querySelector('section:not(.hidden-tab)');
-                if (!activeTab) {
-                    switchTab('carian');
-                }
+                if (!activeTab) switchTab('carian');
             }
         }
 
         function switchTab(tabName) {
             const maintenanceView = document.getElementById('maintenanceView');
 
-            // Jika mod penyelenggaraan aktif dan pengguna bukan admin, halang dan tunjukkan skrin penyelenggaraan
             if (isMaintenanceMode && tabName !== 'admin') {
                 ['carian', 'aduan', 'status', 'admin'].forEach(t => {
                     document.getElementById(`tab-${t}`).classList.add('hidden-tab');
@@ -487,7 +442,6 @@
                 return;
             }
 
-            // Jika mod biasa atau masuk ke Portal Admin
             maintenanceView.classList.add('hidden-tab');
 
             ['carian', 'aduan', 'status', 'admin'].forEach(t => {
@@ -551,6 +505,7 @@
 
             msgError.classList.add('hidden');
             hasilCard.classList.add('hidden');
+            hasilCard.innerHTML = '';
 
             const regexNama = /^[a-zA-Z\s@\/]+$/;
             if (!regexNama.test(namaInput)) {
@@ -559,17 +514,41 @@
                 return;
             }
 
-            const hasil = dataMuridList.find(m => {
+            const senaraiHasil = dataMuridList.filter(m => {
                 const padanTingkatan = m.tingkatan ? m.tingkatan.toString().trim().toLowerCase() === tingkatan.toLowerCase() : true;
                 const padanKelas = m.kelas ? m.kelas.toString().trim().toLowerCase() === kelas.toLowerCase() : false;
                 const padanNama = m.nama ? m.nama.toString().toUpperCase().includes(namaInput.toUpperCase()) : false;
                 return padanTingkatan && padanKelas && padanNama;
             });
 
-            if (hasil) {
-                document.getElementById('resKelas').textContent = `${hasil.tingkatan || tingkatan} • ${hasil.kelas}`;
-                document.getElementById('resNama').textContent = hasil.nama;
-                document.getElementById('resEmail').textContent = hasil.email || hasil.emailDelima || "E-mel tidak dijumpai";
+            if (senaraiHasil.length > 0) {
+                senaraiHasil.forEach((hasil, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = "p-5 bg-blue-50 border border-blue-100 rounded-xl space-y-3 mb-4";
+                    itemDiv.innerHTML = `
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="inline-block px-2.5 py-1 text-xs font-semibold bg-delima-blue text-white rounded mb-2">${hasil.tingkatan || tingkatan} • ${hasil.kelas}</span>
+                                <h3 class="text-lg font-bold text-gray-800">${hasil.nama}</h3>
+                            </div>
+                            <i class="fa-solid fa-circle-check text-2xl text-green-500"></i>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <div>
+                                <p class="text-xs text-gray-500 font-medium uppercase">Alamat E-mel DELIMa / MOE</p>
+                                <p class="text-base sm:text-lg font-mono font-bold text-delima-blue break-all" id="emailText_${index}">${hasil.email || "E-mel tidak dijumpai"}</p>
+                            </div>
+                            <button onclick="salinEmailDinamik('emailText_${index}', 'msgSalin_${index}')" class="bg-delima-lightBlue hover:bg-delima-blue text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 shrink-0">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>Salin E-mel</span>
+                            </button>
+                        </div>
+                        <div id="msgSalin_${index}" class="hidden text-xs text-green-600 font-semibold text-right">E-mel berjaya disalin</div>
+                    `;
+                    hasilCard.appendChild(itemDiv);
+                });
+
                 hasilCard.classList.remove('hidden');
             } else {
                 msgError.textContent = "Maklumat tidak dijumpai";
@@ -577,10 +556,10 @@
             }
         }
 
-        function salinEmail() {
-            const emailText = document.getElementById('resEmail').textContent;
+        function salinEmailDinamik(elementId, msgId) {
+            const emailText = document.getElementById(elementId).textContent;
             navigator.clipboard.writeText(emailText).then(() => {
-                const msg = document.getElementById('msgSalin');
+                const msg = document.getElementById(msgId);
                 msg.classList.remove('hidden');
                 setTimeout(() => msg.classList.add('hidden'), 3000);
             }).catch(() => {
@@ -633,7 +612,7 @@
                         body: JSON.stringify(newAduan)
                     });
                 } catch (e) {
-                    console.log("Gagal menghantar ke Google Sheets, menyimpan di setempat.");
+                    console.log("Gagal menghantar ke Google Sheets.");
                 }
             }
 
@@ -713,7 +692,7 @@
             hasilContainer.classList.remove('hidden');
         }
 
-        function sahkanAksesAdmin() {
+        async function sahkanAksesAdmin() {
             const pwd = document.getElementById('adminPassword').value;
             const msgErr = document.getElementById('msgAdminLoginError');
 
@@ -722,6 +701,23 @@
                 msgErr.classList.add('hidden');
                 document.getElementById('adminLoginCard').classList.add('hidden');
                 document.getElementById('adminDashboard').classList.remove('hidden');
+
+                // Muat turun data aduan secara langsung daripada Google Sheets
+                if (GOOGLE_SHEETS_SCRIPT_URL) {
+                    try {
+                        const response = await fetch(GOOGLE_SHEETS_SCRIPT_URL + "?action=getAduan");
+                        if (response.ok) {
+                            const dataAduanSheet = await response.json();
+                            if (Array.isArray(dataAduanSheet) && dataAduanSheet.length > 0) {
+                                aduanList = dataAduanSheet;
+                                localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
+                            }
+                        }
+                    } catch (err) {
+                        console.log("Menggunakan data aduan setempat.");
+                    }
+                }
+
                 renderAdminAnalytics();
             } else {
                 msgErr.classList.remove('hidden');
