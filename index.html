@@ -167,7 +167,7 @@
                         <input type="text" id="aduanNama" placeholder="Masukkan nama penuh" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none uppercase" required>
                     </div>
 
-                    <!-- DDL TINGKATAN & KELAS DINAMIK UNTUK ADUAN -->
+                    <!-- DDL TINGKATAN & KELAS TERPISAH -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih Tingkatan <span class="text-red-500">*</span></label>
@@ -196,8 +196,8 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nombor Kad Pengenalan <span class="text-red-500">*</span></label>
-                        <input type="text" id="aduanIC" placeholder="Contoh: 080102105544 (12 Digit tanpa dash -)" maxlength="12" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none" required>
-                        <p id="msgAduanICError" class="hidden text-xs text-red-500 font-bold mt-1">No. Kad Pengenalan tidak sah</p>
+                        <input type="text" id="aduanIC" placeholder="Contoh: 080102105544 (12 Digit tanpa sempang -)" maxlength="12" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none" required>
+                        <p id="msgAduanICError" class="hidden text-xs text-red-500 font-bold mt-1">No. Kad Pengenalan tidak sah (mesti 12 digit angka sahaja tanpa sempang -)</p>
                         <p class="text-xs text-gray-400 mt-1">Sila masukkan 12 digit nombor MyKad tanpa sebarang tanda sempang (-) atau ruang.</p>
                     </div>
 
@@ -229,7 +229,7 @@
 
                 <div id="msgAduanSuccess" class="hidden mt-6 p-5 bg-green-50 border border-green-200 rounded-xl text-center space-y-2">
                     <i class="fa-solid fa-circle-check text-4xl text-green-500"></i>
-                    <p class="text-green-800 font-bold text-base">Aduan anda telah berjaya dihantar sila semak status aduan ada dari semasa ke semasa</p>
+                    <p class="text-green-800 font-bold text-base">Aduan anda telah berjaya dihantar. Sila semak status aduan dari semasa ke semasa.</p>
                 </div>
             </div>
         </section>
@@ -249,7 +249,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nombor Kad Pengenalan <span class="text-red-500">*</span></label>
                         <input type="text" id="semakIC" placeholder="Masukkan 12 digit No. KP tanpa (-)" maxlength="12" class="w-full border-gray-300 rounded-lg p-2.5 border focus:ring-2 focus:ring-delima-lightBlue outline-none" required>
-                        <p id="msgSemakICError" class="hidden text-xs text-red-500 font-bold mt-1">No. Kad Pengenalan tidak sah</p>
+                        <p id="msgSemakICError" class="hidden text-xs text-red-500 font-bold mt-1">No. Kad Pengenalan tidak sah (mesti 12 digit angka sahaja tanpa sempang -)</p>
                     </div>
                     <button type="submit" class="w-full bg-delima-blue hover:bg-delima-lightBlue text-white font-semibold py-3 px-6 rounded-lg transition-all shadow-md flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -373,6 +373,7 @@
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
                                     <th class="py-3 px-4">Nama / No. KP</th>
+                                    <th class="py-3 px-4">Tingkatan</th>
                                     <th class="py-3 px-4">Kelas</th>
                                     <th class="py-3 px-4">Jenis Isu</th>
                                     <th class="py-3 px-4">Penerangan</th>
@@ -411,21 +412,27 @@
         let chartIsuInstance = null;
         let chartRankIsuInstance = null;
 
-        // FUNGSI KETAT VALIDASI PENUH NOMBOR KAD PENGENALAN MALAYSIA (MYKAD)
+        // FUNGSI VALIDASI KETAT NO. KP (MESTILAH TEPAT 12 DIGIT ANGKA SAHAJA - MENOLAK SEMPANG - ATAU RUANG)
         function sahkanNoKP(ic) {
-            const cleanIC = String(ic).trim().replace(/[-\s]/g, '');
+            if (!ic) return false;
+            
+            const cleanIC = String(ic).trim();
 
+            // 1. Mesti TEPAT 12 DIGIT ANGKA sahaja (tiada sempang - atau abjad)
             if (!/^\d{12}$/.test(cleanIC)) return false;
 
+            // 2. Ekstrak Komponen MyKad
             const yy = parseInt(cleanIC.substring(0, 2), 10);
             const mm = parseInt(cleanIC.substring(2, 4), 10);
             const dd = parseInt(cleanIC.substring(4, 6), 10);
             const stateStr = cleanIC.substring(6, 8);
             const last4Str = cleanIC.substring(8, 12);
 
+            // 3. Semak Julat Bulan (01 - 12) & Hari (01 - 31)
             if (isNaN(mm) || mm < 1 || mm > 12) return false;
             if (isNaN(dd) || dd < 1 || dd > 31) return false;
 
+            // 4. Semak Ketepatan Tarikh Kalendar (Elak Date Rollover JavaScript)
             const fullYear = yy > 30 ? 1900 + yy : 2000 + yy;
             const testDate = new Date(fullYear, mm - 1, dd);
 
@@ -437,15 +444,18 @@
                 return false;
             }
 
+            // 5. Semak Kod Negeri / Wilayah / Lahir Luar Negara (98, 99) JPN Sah
             const stateCode = parseInt(stateStr, 10);
             const validStateCodes = [
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
                 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
                 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+                60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
                 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 98, 99
             ];
             if (!validStateCodes.includes(stateCode)) return false;
 
+            // 6. Semak 4 Digit Terakhir (Tidak Boleh "0000")
             if (last4Str === "0000") return false;
 
             return true;
@@ -553,7 +563,6 @@
             }
         }
 
-        // FUNGSI UTAMA DROPDOWN KELAS SERBAGUNA (UNTUK CARIAN & BORANG ADUAN)
         function kemaskiniDropdownKelas(idTingkatan = 'selectTingkatan', idKelas = 'selectKelas') {
             const tingkatanPilihan = document.getElementById(idTingkatan).value.trim();
             const selectKelas = document.getElementById(idKelas);
@@ -660,7 +669,7 @@
             });
         }
 
-        // BORANG ADUAN (DENGAN DDL KELAS & VALIDASI MYKAD KETAT)
+        // BORANG ADUAN
         async function hantarAduan() {
             const nama = document.getElementById('aduanNama').value.trim();
             const tingkatan = document.getElementById('aduanTingkatan').value.trim();
@@ -678,7 +687,6 @@
             msgError.classList.add('hidden');
             msgSuccess.classList.add('hidden');
 
-            // PENYEMAKAN MYKAD MALAYSIA
             if (!sahkanNoKP(ic)) {
                 msgICError.classList.remove('hidden');
                 return;
@@ -690,13 +698,12 @@
             btnHantar.classList.add('opacity-50', 'cursor-not-allowed');
             btnText.textContent = "Sedang Dihantar...";
 
-            const cleanIC = ic.replace(/[-\s]/g, '');
-
             const newAduan = {
                 id: Date.now(),
                 nama: nama.toUpperCase(),
-                kelas: (tingkatan + " - " + kelas).toUpperCase(),
-                ic: cleanIC,
+                tingkatan: tingkatan,
+                kelas: kelas,
+                ic: ic,
                 isu: isu,
                 masalah: masalah,
                 status: "Baru",
@@ -729,7 +736,7 @@
             msgSuccess.classList.remove('hidden');
         }
 
-        // SEMAK STATUS ADUAN (PENYEMAKAN MYKAD KETAT)
+        // SEMAK STATUS ADUAN
         function semakStatusAduan() {
             const icInput = document.getElementById('semakIC').value.trim();
             const msgError = document.getElementById('msgStatusError');
@@ -749,8 +756,7 @@
                 msgICError.classList.add('hidden');
             }
 
-            const cleanIC = icInput.replace(/[-\s]/g, '');
-            const padanan = aduanList.filter(a => a.ic === cleanIC);
+            const padanan = aduanList.filter(a => a.ic === icInput);
 
             if (padanan.length === 0) {
                 msgError.textContent = "Aduan tidak dijumpai";
@@ -781,7 +787,7 @@
                     <div class="flex items-center justify-between border-b pb-3">
                         <div>
                             <p class="text-xs text-gray-500 uppercase font-semibold">Nama Penuh</p>
-                            <h4 class="text-md font-bold text-gray-800">${item.nama} (${item.kelas || 'N/A'})</h4>
+                            <h4 class="text-md font-bold text-gray-800">${item.nama} (${item.tingkatan || ''} ${item.kelas || 'N/A'})</h4>
                         </div>
                         <span class="px-3 py-1 rounded-full text-xs font-bold border ${badgeColor}">${item.status}</span>
                     </div>
@@ -881,7 +887,7 @@
             if (filteredList.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="py-6 text-center text-gray-400 font-medium">
+                        <td colspan="8" class="py-6 text-center text-gray-400 font-medium">
                             Tiada rekod aduan untuk status "${activeStatusFilter}".
                         </td>
                     </tr>
@@ -897,6 +903,7 @@
                             ${item.nama}<br>
                             <span class="text-xs text-gray-400 font-normal">${item.ic}</span>
                         </td>
+                        <td class="py-3 px-4 font-medium text-gray-700">${item.tingkatan || '-'}</td>
                         <td class="py-3 px-4 font-medium text-gray-700">${item.kelas || '-'}</td>
                         <td class="py-3 px-4">${item.isu}</td>
                         <td class="py-3 px-4 text-xs text-gray-600 max-w-xs">${item.masalah}</td>
