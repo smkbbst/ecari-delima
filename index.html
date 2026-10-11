@@ -319,7 +319,7 @@
                     </div>
                 </div>
 
-                <!-- BAHAGIAN ANALISIS (DIPINDAHKAN KE ATAS SENARAI REKOD ADUAN) -->
+                <!-- BAHAGIAN ANALISIS -->
                 <div class="space-y-6">
                     <!-- KAD RUMUSAN ISU UTAMA SEPANJANG TAHUN -->
                     <div class="bg-gradient-to-r from-delima-blue to-delima-lightBlue rounded-xl shadow-md p-6 text-white flex flex-col md:flex-row items-center justify-between gap-4">
@@ -362,16 +362,24 @@
                     </div>
                 </div>
 
-                <!-- SENARAI REKOD ADUAN MURID (DIUBAH KEPADA RESPONSIVE CARD VIEW UNTUK BANTU PAPARAN FULL TANPA SCROLL HORIZONTAL) -->
+                <!-- SENARAI REKOD ADUAN MURID (DENGAN DROPDOWN FILTER STATUS) -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
                         <h3 class="text-md font-bold text-delima-blue flex items-center space-x-2">
                             <i class="fa-solid fa-folder-open text-delima-lightBlue"></i>
                             <span>Senarai Rekod Aduan Murid</span>
                         </h3>
-                        <span id="labelTapisJadual" class="text-xs font-semibold px-3 py-1 bg-blue-100 text-delima-blue rounded-full self-start sm:self-auto">
-                            Paparan: Semua Status
-                        </span>
+                        
+                        <!-- DROPDOWN FILTER STATUS -->
+                        <div class="flex items-center space-x-2">
+                            <label for="filterStatusSelect" class="text-xs font-semibold text-gray-500">Tapis Status:</label>
+                            <select id="filterStatusSelect" onchange="setFilterStatus(this.value)" class="text-xs font-bold bg-blue-50 border border-blue-200 text-delima-blue rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-delima-lightBlue cursor-pointer">
+                                <option value="Semua">Paparan: Semua Status</option>
+                                <option value="Baru">Paparan: Baru</option>
+                                <option value="Sedang Disemak">Paparan: Sedang Disemak</option>
+                                <option value="Selesai">Paparan: Selesai</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Container Senarai Aduan -->
@@ -795,11 +803,12 @@
             hasilContainer.classList.remove('hidden');
         }
 
+        // LOG MASUK ADMIN (KATA LALUAN DIKEMASKINI: be@960#)
         async function sahkanAksesAdmin() {
             const pwd = document.getElementById('adminPassword').value;
             const msgErr = document.getElementById('msgAdminLoginError');
 
-            if (pwd === 'admin123') { 
+            if (pwd === 'be@960#') { 
                 isAdminLoggedIn = true;
                 msgErr.classList.add('hidden');
                 document.getElementById('adminLoginCard').classList.add('hidden');
@@ -846,7 +855,10 @@
             if (status === 'Sedang Disemak') document.getElementById('cardFilterDisemak').classList.add('ring-2', 'ring-indigo-500');
             if (status === 'Selesai') document.getElementById('cardFilterSelesai').classList.add('ring-2', 'ring-green-500');
 
-            document.getElementById('labelTapisJadual').textContent = `Paparan: ${status === 'Semua' ? 'Semua Status' : status}`;
+            const filterSelect = document.getElementById('filterStatusSelect');
+            if (filterSelect && filterSelect.value !== status) {
+                filterSelect.value = status;
+            }
 
             renderAdminAnalytics();
         }
@@ -963,11 +975,32 @@
             }
         }
 
-        function padamAduan(index) {
-            if (index !== -1 && confirm('Adakah anda pasti ingin memadam rekod aduan ini?')) {
-                aduanList.splice(index, 1);
-                localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
-                renderAdminAnalytics();
+        // FUNGSI MEMADAM ADUAN DARI LOCALSTORAGE DAN GOOGLE SHEETS
+        async function padamAduan(index) {
+            if (index !== -1 && aduanList[index]) {
+                if (confirm('Adakah anda pasti ingin memadam rekod aduan ini daripada sistem dan Google Sheets?')) {
+                    const targetRow = aduanList[index].rowIndex || (index + 2);
+
+                    if (GOOGLE_SHEETS_SCRIPT_URL) {
+                        try {
+                            await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
+                                method: 'POST',
+                                mode: 'no-cors',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    action: "deleteRow",
+                                    rowIndex: targetRow
+                                })
+                            });
+                        } catch (e) {
+                            console.log("Gagal memadam dari Google Sheets.");
+                        }
+                    }
+
+                    aduanList.splice(index, 1);
+                    localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
+                    renderAdminAnalytics();
+                }
             }
         }
 
