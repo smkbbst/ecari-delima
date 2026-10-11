@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -396,24 +397,29 @@
             if (!/^\d{12}$/.test(cleanIC)) return false;
 
             // 3. Ekstrak Komponen MyKad
-            const yy = cleanIC.substring(0, 2);
+            const yy = parseInt(cleanIC.substring(0, 2), 10);
             const mm = parseInt(cleanIC.substring(2, 4), 10);
             const dd = parseInt(cleanIC.substring(4, 6), 10);
             const stateStr = cleanIC.substring(6, 8);
             const last4Str = cleanIC.substring(8, 12);
 
-            // 4. Semak Bulan (01 - 12) & Hari (01 - 31)
-            if (mm < 1 || mm > 12) return false;
-            if (dd < 1 || dd > 31) return false;
+            // 4. Semak Julat Asas Bulan (01 - 12) & Hari (01 - 31)
+            if (isNaN(mm) || mm < 1 || mm > 12) return false;
+            if (isNaN(dd) || dd < 1 || dd > 31) return false;
 
-            // Semak ketepatan tarikh kalendar sebenar (Menolak tarikh yang tidak wujud seperti 31 Feb / 31 Nov)
-            const fullYear = parseInt(yy, 10) > 30 ? 1900 + parseInt(yy, 10) : 2000 + parseInt(yy, 10);
+            // 5. Semak ketepatan tarikh kalendar sebenar (Mencegah Date Rollover JavaScript)
+            const fullYear = yy > 30 ? 1900 + yy : 2000 + yy;
             const testDate = new Date(fullYear, mm - 1, dd);
-            if (testDate.getFullYear() !== fullYear || (testDate.getMonth() + 1) !== mm || testDate.getDate() !== dd) {
+
+            if (
+                testDate.getFullYear() !== fullYear ||
+                (testDate.getMonth() + 1) !== mm ||
+                testDate.getDate() !== dd
+            ) {
                 return false;
             }
 
-            // 5. Semak Kod Negeri JPN Sah (01-16, 21-59, 82-93, 98-99)
+            // 6. Semak Kod Negeri JPN Sah (01-16, 21-59, 82-93, 98-99)
             const stateCode = parseInt(stateStr, 10);
             const validStateCodes = [
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -423,7 +429,7 @@
             ];
             if (!validStateCodes.includes(stateCode)) return false;
 
-            // 6. Semak 4 Digit Terakhir (Tidak boleh "0000")
+            // 7. Semak 4 Digit Terakhir (Tidak boleh "0000")
             if (last4Str === "0000") return false;
 
             return true;
