@@ -90,7 +90,7 @@
     </div>
 
     <!-- MAIN CONTENT CONTAINERS -->
-    <main id="mainContainer" class="flex-grow max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    <main id="mainContainer" class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8">
 
         <!-- 1. MODUL CARIAN ID DELIMa -->
         <section id="tab-carian" class="space-y-6">
@@ -261,7 +261,7 @@
             </div>
         </section>
 
-        <!-- 4. ANALISIS ADUAN KHUSUS UNTUK PORTAL ADMIN DELIMa -->
+        <!-- 4. ANALISIS & PORTAL ADMIN DELIMa -->
         <section id="tab-admin" class="hidden-tab space-y-6">
             <div id="adminLoginCard" class="bg-white rounded-xl shadow-md border border-gray-100 p-6 sm:p-8 max-w-md mx-auto text-center space-y-4">
                 <div class="w-16 h-16 bg-blue-100 text-delima-blue rounded-full flex items-center justify-center mx-auto text-2xl">
@@ -306,7 +306,7 @@
                         <h3 class="text-2xl sm:text-3xl font-extrabold text-blue-900 mt-1" id="kpiJumlah">0</h3>
                     </div>
                     <div id="cardFilterBaru" onclick="setFilterStatus('Baru')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-yellow-500 cursor-pointer hover:shadow-md transition-all">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Baru</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">BARU</p>
                         <h3 class="text-2xl sm:text-3xl font-extrabold text-yellow-600 mt-1" id="kpiBaru">0</h3>
                     </div>
                     <div id="cardFilterDisemak" onclick="setFilterStatus('Sedang Disemak')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-indigo-500 cursor-pointer hover:shadow-md transition-all">
@@ -314,75 +314,68 @@
                         <h3 class="text-2xl sm:text-3xl font-extrabold text-indigo-600 mt-1" id="kpiDisemak">0</h3>
                     </div>
                     <div id="cardFilterSelesai" onclick="setFilterStatus('Selesai')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500 cursor-pointer hover:shadow-md transition-all">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Selesai</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">SELESAI</p>
                         <h3 class="text-2xl sm:text-3xl font-extrabold text-green-600 mt-1" id="kpiSelesai">0</h3>
                     </div>
                 </div>
 
-                <!-- KAD RUMUSAN ISU UTAMA SEPANJANG TAHUN -->
-                <div class="bg-gradient-to-r from-delima-blue to-delima-lightBlue rounded-xl shadow-md p-6 text-white flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-3xl text-delima-accent shrink-0">
-                            <i class="fa-solid fa-trophy"></i>
+                <!-- BAHAGIAN ANALISIS (DIPINDAHKAN KE ATAS SENARAI REKOD ADUAN) -->
+                <div class="space-y-6">
+                    <!-- KAD RUMUSAN ISU UTAMA SEPANJANG TAHUN -->
+                    <div class="bg-gradient-to-r from-delima-blue to-delima-lightBlue rounded-xl shadow-md p-6 text-white flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-3xl text-delima-accent shrink-0">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs uppercase tracking-wider text-delima-accent font-semibold">Analisis Utama Tahunan</p>
+                                <h3 class="text-xl font-bold">Isu Paling Banyak Dilaporkan</h3>
+                                <p class="text-xs text-gray-200 mt-0.5">Berdasarkan keseluruhan rekod aduan murid di Google Sheets</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-xs uppercase tracking-wider text-delima-accent font-semibold">Analisis Utama Tahunan</p>
-                            <h3 class="text-xl font-bold">Isu Paling Banyak Dilaporkan</h3>
-                            <p class="text-xs text-gray-200 mt-0.5">Berdasarkan keseluruhan rekod aduan murid di Google Sheets</p>
+                        <div class="bg-white/10 border border-white/20 rounded-lg p-4 text-center md:text-right w-full md:w-auto shrink-0">
+                            <p class="text-lg font-extrabold text-delima-accent uppercase" id="topIsuNama">Tiada Data</p>
+                            <p class="text-xs text-gray-200" id="topIsuStat">0 Kes (0%)</p>
                         </div>
                     </div>
-                    <div class="bg-white/10 border border-white/20 rounded-lg p-4 text-center md:text-right w-full md:w-auto shrink-0">
-                        <p class="text-lg font-extrabold text-delima-accent uppercase" id="topIsuNama">Tiada Data</p>
-                        <p class="text-xs text-gray-200" id="topIsuStat">0 Kes (0%)</p>
+
+                    <!-- CARTA ANALISIS -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-pie text-delima-lightBlue"></i>
+                                <span>Pecahan Mengikut Jenis Isu</span>
+                            </h3>
+                            <div class="relative h-64">
+                                <canvas id="chartIsu"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-bar text-delima-lightBlue"></i>
+                                <span>Kedudukan Kekerapan Isu (Ranking Isu Tahunan)</span>
+                            </h3>
+                            <div class="relative h-64">
+                                <canvas id="chartRankIsu"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- CARTA ANALISIS -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-                        <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center space-x-2">
-                            <i class="fa-solid fa-chart-pie text-delima-lightBlue"></i>
-                            <span>Pecahan Mengikut Jenis Isu</span>
-                        </h3>
-                        <div class="relative h-64">
-                            <canvas id="chartIsu"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-                        <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center space-x-2">
-                            <i class="fa-solid fa-chart-bar text-delima-lightBlue"></i>
-                            <span>Kedudukan Kekerapan Isu (Ranking Isu Tahunan)</span>
-                        </h3>
-                        <div class="relative h-64">
-                            <canvas id="chartRankIsu"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- JADUAL REKOD ADUAN -->
+                <!-- SENARAI REKOD ADUAN MURID (DIUBAH KEPADA RESPONSIVE CARD VIEW UNTUK BANTU PAPARAN FULL TANPA SCROLL HORIZONTAL) -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2">
-                        <h3 class="text-md font-bold text-delima-blue">Senarai Rekod Aduan Murid</h3>
-                        <span id="labelTapisJadual" class="text-xs font-semibold px-2.5 py-1 bg-blue-100 text-delima-blue rounded-full self-start sm:self-auto">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+                        <h3 class="text-md font-bold text-delima-blue flex items-center space-x-2">
+                            <i class="fa-solid fa-folder-open text-delima-lightBlue"></i>
+                            <span>Senarai Rekod Aduan Murid</span>
+                        </h3>
+                        <span id="labelTapisJadual" class="text-xs font-semibold px-3 py-1 bg-blue-100 text-delima-blue rounded-full self-start sm:self-auto">
                             Paparan: Semua Status
                         </span>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-gray-600">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                                <tr>
-                                    <th class="py-3 px-4">Nama / No. KP</th>
-                                    <th class="py-3 px-4">Kelas</th>
-                                    <th class="py-3 px-4">Jenis Isu</th>
-                                    <th class="py-3 px-4">Penerangan</th>
-                                    <th class="py-3 px-4">Status</th>
-                                    <th class="py-3 px-4 min-w-[200px]">Maklum Balas Admin</th>
-                                    <th class="py-3 px-4 text-center">Tindakan</th>
-                                </tr>
-                            </thead>
-                            <tbody id="jadualAduanBody" class="divide-y divide-gray-100"></tbody>
-                        </table>
-                    </div>
+
+                    <!-- Container Senarai Aduan -->
+                    <div id="senaraiAduanCards" class="space-y-4"></div>
                 </div>
             </div>
         </section>
@@ -399,7 +392,7 @@
 
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
-        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
+        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
 
         let dataMuridList = [];
         let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
@@ -410,12 +403,9 @@
         let chartIsuInstance = null;
         let chartRankIsuInstance = null;
 
-        // FUNGSI VALIDASI KETAT NO. KP (MESTILAH TEPAT 12 DIGIT ANGKA SAHAJA - MENOLAK SEMPANG - ATAU RUANG)
         function sahkanNoKP(ic) {
             if (!ic) return false;
-            
             const cleanIC = String(ic).trim();
-
             if (!/^\d{12}$/.test(cleanIC)) return false;
 
             const yy = parseInt(cleanIC.substring(0, 2), 10);
@@ -447,7 +437,6 @@
                 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 98, 99
             ];
             if (!validStateCodes.includes(stateCode)) return false;
-
             if (last4Str === "0000") return false;
 
             return true;
@@ -661,7 +650,7 @@
             });
         }
 
-        // FUNGSI HANTAR ADUAN - MENGHANTAR DATA SAMA DENGAN STRUKTUR GOOGLE SHEETS (8 LAJUR)
+        // FUNGSI HANTAR ADUAN BAHARU
         async function hantarAduan() {
             const nama = document.getElementById('aduanNama').value.trim();
             const kelas = document.getElementById('aduanKelas').value.trim();         
@@ -810,7 +799,7 @@
             const pwd = document.getElementById('adminPassword').value;
             const msgErr = document.getElementById('msgAdminLoginError');
 
-            if (pwd === 'be@960#') { 
+            if (pwd === 'admin123') { 
                 isAdminLoggedIn = true;
                 msgErr.classList.add('hidden');
                 document.getElementById('adminLoginCard').classList.add('hidden');
@@ -873,8 +862,8 @@
             document.getElementById('kpiDisemak').textContent = disemak;
             document.getElementById('kpiSelesai').textContent = selesai;
 
-            const tbody = document.getElementById('jadualAduanBody');
-            tbody.innerHTML = '';
+            const cardsContainer = document.getElementById('senaraiAduanCards');
+            cardsContainer.innerHTML = '';
 
             let filteredList = aduanList;
             if (activeStatusFilter !== 'Semua') {
@@ -882,56 +871,75 @@
             }
 
             if (filteredList.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="py-6 text-center text-gray-400 font-medium">
-                            Tiada rekod aduan untuk status "${activeStatusFilter}".
-                        </td>
-                    </tr>
+                cardsContainer.innerHTML = `
+                    <div class="p-8 text-center text-gray-400 font-medium bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        Tiada rekod aduan untuk status "${activeStatusFilter}".
+                    </div>
                 `;
             } else {
                 filteredList.forEach((item) => {
                     const actualIndex = aduanList.findIndex(a => a.id === item.id);
 
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-gray-50 border-b";
-                    tr.innerHTML = `
-                        <td class="py-3 px-4 font-semibold text-gray-800">
-                            ${item.nama}<br>
-                            <span class="text-xs text-gray-400 font-normal">${item.ic}</span>
-                        </td>
-                        <td class="py-3 px-4 font-medium text-gray-700">${item.kelas || '-'}</td>
-                        <td class="py-3 px-4">${item.isu}</td>
-                        <td class="py-3 px-4 text-xs text-gray-600 max-w-xs">${item.masalah}</td>
-                        <td class="py-3 px-4">
-                            <select onchange="kemaskiniStatusAdmin(${actualIndex}, 'status', this.value)" class="text-xs rounded border border-gray-300 p-1 font-semibold">
-                                <option value="Baru" ${item.status === 'Baru' ? 'selected' : ''}>Baru</option>
-                                <option value="Sedang Disemak" ${item.status === 'Sedang Disemak' ? 'selected' : ''}>Sedang Disemak</option>
-                                <option value="Selesai" ${item.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
-                            </select>
-                        </td>
-                        <td class="py-3 px-4">
-                            <textarea rows="2" placeholder="Taip maklum balas..." onblur="kemaskiniStatusAdmin(${actualIndex}, 'maklumBalas', this.value)" class="text-xs w-full border border-gray-200 rounded p-1.5 focus:border-delima-lightBlue outline-none resize-y">${item.maklumBalas || ''}</textarea>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <button onclick="padamAduan(${actualIndex})" class="text-red-500 hover:text-red-700 text-xs font-bold">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
+                    const card = document.createElement('div');
+                    card.className = "bg-white border border-gray-200 hover:border-blue-300 rounded-xl p-5 shadow-sm space-y-4 transition-all";
+                    
+                    card.innerHTML = `
+                        <!-- Header Card -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+                            <div>
+                                <h4 class="text-md font-bold text-gray-800">${item.nama}</h4>
+                                <p class="text-xs text-gray-500">No. KP: <span class="font-semibold text-gray-700">${item.ic}</span> • Kelas: <span class="font-semibold text-gray-700">${item.kelas || '-'}</span></p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs text-gray-400 font-medium">${item.tarikh || ''}</span>
+                                <button onclick="padamAduan(${actualIndex})" class="text-red-500 hover:bg-red-50 p-1.5 rounded-lg text-xs font-bold transition-all" title="Padam Aduan">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Perincian Isu & Masalah -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <p class="text-gray-400 font-semibold uppercase">Jenis Isu</p>
+                                <p class="font-bold text-delima-blue mt-0.5 text-sm">${item.isu}</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <p class="text-gray-400 font-semibold uppercase">Penerangan Masalah</p>
+                                <p class="font-medium text-gray-700 mt-0.5">${item.masalah}</p>
+                            </div>
+                        </div>
+
+                        <!-- Kemaskini Status & Maklum Balas -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 border-t">
+                            <div class="md:col-span-1">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Status Aduan</label>
+                                <select onchange="kemaskiniStatusAdmin(${actualIndex}, 'status', this.value)" class="w-full text-xs rounded-lg border border-gray-300 p-2 font-semibold outline-none focus:ring-2 focus:ring-delima-lightBlue">
+                                    <option value="Baru" ${item.status === 'Baru' ? 'selected' : ''}>Baru</option>
+                                    <option value="Sedang Disemak" ${item.status === 'Sedang Disemak' ? 'selected' : ''}>Sedang Disemak</option>
+                                    <option value="Selesai" ${item.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Maklum Balas Admin</label>
+                                <textarea rows="1" placeholder="Taip maklum balas..." onblur="kemaskiniStatusAdmin(${actualIndex}, 'maklumBalas', this.value)" class="w-full text-xs border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-delima-lightBlue outline-none resize-y">${item.maklumBalas || ''}</textarea>
+                            </div>
+                        </div>
                     `;
-                    tbody.appendChild(tr);
+                    cardsContainer.appendChild(card);
                 });
             }
 
             renderCharts();
         }
 
-        // FUNGSI UNTUK DIKEMASKINI KE GOOGLE SHEETS BILA ADMIN TUKAR STATUS / MAKLUM BALAS
         async function kemaskiniStatusAdmin(index, field, value) {
             if (index !== -1 && aduanList[index]) {
                 aduanList[index][field] = value;
                 localStorage.setItem('ecari_aduan_list', JSON.stringify(aduanList));
                 
+                const targetRow = aduanList[index].rowIndex || (index + 2);
+
                 if (GOOGLE_SHEETS_SCRIPT_URL) {
                     try {
                         await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
@@ -940,6 +948,7 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 action: "updateStatus",
+                                rowIndex: targetRow,
                                 ic: aduanList[index].ic,
                                 status: aduanList[index].status,
                                 maklumBalas: aduanList[index].maklumBalas
