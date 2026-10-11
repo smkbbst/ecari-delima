@@ -457,7 +457,6 @@
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
         const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
-
         let dataMuridList = [];
         let aduanList = [];
 
@@ -640,7 +639,8 @@
         async function muatAduanDariGoogleSheets() {
             if (!GOOGLE_SHEETS_SCRIPT_URL) return;
             try {
-                const response = await fetch(GOOGLE_SHEETS_SCRIPT_URL + "?action=getAduan");
+                // Parameter _t digunakan untuk memaksa penyegaran tanpa menyimpan cache
+                const response = await fetch(GOOGLE_SHEETS_SCRIPT_URL + "?action=getAduan&_t=" + Date.now());
                 if (response.ok) {
                     const dataAduanSheet = await response.json();
                     if (Array.isArray(dataAduanSheet)) {
@@ -859,7 +859,7 @@
 
             if (GOOGLE_SHEETS_SCRIPT_URL) {
                 try {
-                    const res = await fetch(GOOGLE_SHEETS_SCRIPT_URL + "?action=getAduan");
+                    const res = await fetch(GOOGLE_SHEETS_SCRIPT_URL + "?action=getAduan&_t=" + Date.now());
                     if (res.ok) {
                         aduanList = await res.json();
                     }
@@ -1047,7 +1047,7 @@
             if (index !== -1 && aduanList[index]) {
                 aduanList[index][field] = value;
                 
-                const targetRow = aduanList[index].rowIndex || (index + 2);
+                const targetRow = aduanList[index].rowIndex;
 
                 if (GOOGLE_SHEETS_SCRIPT_URL) {
                     try {
@@ -1071,15 +1071,22 @@
             }
         }
 
-        // FUNGSI PEMADAMAN BERSIFAT ASYNCHRONOUS LENGKAP
         async function padamAduan(index) {
             if (index !== -1 && aduanList[index]) {
                 if (confirm('Adakah anda pasti ingin memadam rekod aduan ini daripada sistem dan Google Sheets?')) {
-                    const targetRow = aduanList[index].rowIndex || (index + 2);
+                    const targetRow = aduanList[index].rowIndex;
 
                     if (GOOGLE_SHEETS_SCRIPT_URL) {
                         try {
-                            // 1. Tunggu respons pemadaman dari Google Sheets
+                            const container = document.getElementById('senaraiAduanCards');
+                            if (container) {
+                                container.innerHTML = `
+                                    <div class="p-8 text-center text-blue-600 font-medium bg-blue-50 rounded-xl border border-blue-200">
+                                        <i class="fa-solid fa-spinner fa-spin mr-2"></i> Sedang memadam rekod dari Google Sheets...
+                                    </div>
+                                `;
+                            }
+
                             await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1089,15 +1096,16 @@
                                 })
                             });
 
-                            // 2. Beri sedikit masa buffer untuk Google Apps Script memproses sheet
-                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            // Masa penangguhan 1.5 saat untuk membenarkan Google Apps Script selesai memadam kandungan dan baris
+                            await new Promise(resolve => setTimeout(resolve, 1500));
 
-                            // 3. Muat semula data terkini terus dari Google Sheets supaya 100% sync
+                            // Muat semula data rasmi terus dari Google Sheets supaya 100% sync
                             await muatAduanDariGoogleSheets();
 
                         } catch (e) {
                             console.log("Gagal memadam dari Google Sheets.");
-                            alert("Terlalu banyak permintaan atau talian terputus. Sila tekan butang Refresh Data Sheets.");
+                            alert("Gagal memadam. Sila cuba lagi.");
+                            await muatAduanDariGoogleSheets();
                         }
                     }
                 }
