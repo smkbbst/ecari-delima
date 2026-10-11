@@ -40,7 +40,7 @@
             user-select: none;         /* Standard */
         }
 
-        /* Benarkan pilihan teks pada kotak carian/borang supaya pengguna boleh menaip */
+        /* Benarkan pilihan teks pada kotak input/textarea/select supaya pengguna boleh menaip */
         input, textarea, select {
             -webkit-user-select: text !important;
             -moz-user-select: text !important;
@@ -414,7 +414,7 @@
         </div>
     </footer>
 
-    <!-- SKRIP PERLINDUNGAN HAK CIPTA & INTERAKSI (LANGKAH 1) -->
+    <!-- SKRIP PERLINDUNGAN HAK CIPTA & INTERAKSI -->
     <script>
         // 1. Sekat Klik Kanan (Context Menu)
         document.addEventListener('contextmenu', function(e) {
@@ -424,31 +424,26 @@
 
         // 2. Sekat Pintasan Kekunci (F12, Inspect Element, View Source, Copy, Save)
         document.addEventListener('keydown', function(e) {
-            // Sekat F12
             if (e.key === 'F12' || e.keyCode === 123) {
                 e.preventDefault();
                 return false;
             }
 
-            // Sekat Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (Inspect Element / Console)
             if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
                 e.preventDefault();
                 return false;
             }
 
-            // Sekat Ctrl+U (View Source)
             if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
                 e.preventDefault();
                 return false;
             }
 
-            // Sekat Ctrl+S (Save Page)
             if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
                 e.preventDefault();
                 return false;
             }
 
-            // Sekat Ctrl+C (Copy) kecuali di dalam input/textarea
             if (e.ctrlKey && (e.key === 'C' || e.key === 'c')) {
                 const targetTag = e.target.tagName.toLowerCase();
                 if (targetTag !== 'input' && targetTag !== 'textarea') {
@@ -458,7 +453,7 @@
             }
         });
 
-        // 3. Detect & Ganggu Penggunaan DevTools (Developer Tools)
+        // 3. Detect & Ganggu Penggunaan DevTools
         (function() {
             const threshold = 160;
             setInterval(function() {
@@ -471,7 +466,7 @@
 
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
-        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
+        const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7G4xwaVOuulXyAonRXBVDymEL7YxMoRLCDZ5lsmWjofOhywwKeXnSBEL1CKACDA2zQg/exec";
 
         let dataMuridList = [];
         let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
@@ -668,6 +663,7 @@
             }
         }
 
+        // FUNGSI KEMASKINI DROPDOWN KELAS (FLEXIBLE MATCHING)
         function kemaskiniDropdownKelas(idTingkatan = 'selectTingkatan', idKelas = 'selectKelas') {
             const tingkatanPilihan = document.getElementById(idTingkatan).value.trim();
             const selectKelas = document.getElementById(idKelas);
@@ -681,9 +677,18 @@
                 return;
             }
 
+            const matchDigit = tingkatanPilihan.match(/\d+/);
+            const nomborTingkatan = matchDigit ? matchDigit[0] : "";
+
             const kelasUnik = [...new Set(
                 dataMuridList
-                    .filter(m => m.tingkatan && m.tingkatan.toString().trim().toLowerCase() === tingkatanPilihan.toLowerCase())
+                    .filter(m => {
+                        if (!m.tingkatan) return false;
+                        const valSheet = m.tingkatan.toString().trim().toLowerCase();
+                        const valPilihan = tingkatanPilihan.toLowerCase();
+                        
+                        return valSheet === valPilihan || (nomborTingkatan && valSheet.includes(nomborTingkatan));
+                    })
                     .map(m => m.kelas)
                     .filter(k => k && k.toString().trim() !== "")
             )].sort();
@@ -722,7 +727,7 @@
             }
 
             const senaraiHasil = dataMuridList.filter(m => {
-                const padanTingkatan = m.tingkatan ? m.tingkatan.toString().trim().toLowerCase() === tingkatan.toLowerCase() : true;
+                const padanTingkatan = m.tingkatan ? m.tingkatan.toString().trim().toLowerCase().includes(tingkatan.toLowerCase().replace("tingkatan ", "")) : true;
                 const padanKelas = m.kelas ? m.kelas.toString().trim().toLowerCase() === kelas.toLowerCase() : false;
                 const padanNama = m.nama ? m.nama.toString().toUpperCase().includes(namaInput.toUpperCase()) : false;
                 return padanTingkatan && padanKelas && padanNama;
@@ -813,8 +818,7 @@
                 try {
                     await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
                         method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify(payloadAduan)
                     });
                 } catch (e) {
@@ -1071,8 +1075,7 @@
                     try {
                         await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
                             method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                             body: JSON.stringify({
                                 action: "updateStatus",
                                 rowIndex: targetRow,
@@ -1090,6 +1093,7 @@
             }
         }
 
+        // FUNGSI PEMADAMAN ADUAN (DENGAN BEACON / TEXT PLAIN)
         async function padamAduan(index) {
             if (index !== -1 && aduanList[index]) {
                 if (confirm('Adakah anda pasti ingin memadam rekod aduan ini daripada sistem dan Google Sheets?')) {
@@ -1099,8 +1103,7 @@
                         try {
                             await fetch(GOOGLE_SHEETS_SCRIPT_URL, {
                                 method: 'POST',
-                                mode: 'no-cors',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                                 body: JSON.stringify({
                                     action: "deleteRow",
                                     rowIndex: targetRow
