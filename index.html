@@ -30,6 +30,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
+        /* CSS: Menyahaktifkan Pilihan Teks (Disable Text Selection) */
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #F4F7FC; 
@@ -39,6 +40,7 @@
             user-select: none;
         }
 
+        /* Benarkan pilihan teks pada kotak input/textarea/select supaya pengguna boleh menaip */
         input, textarea, select {
             -webkit-user-select: text !important;
             -moz-user-select: text !important;
@@ -414,11 +416,13 @@
 
     <!-- SKRIP PERLINDUNGAN HAK CIPTA & INTERAKSI -->
     <script>
+        // Sekat Klik Kanan (Context Menu)
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             alert('Fungsi klik kanan telah dinyahaktifkan untuk melindungi hak cipta kandungan.');
         });
 
+        // Sekat Pintasan Kekunci (F12, Inspect Element, View Source, Copy, Save)
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F12' || e.keyCode === 123) {
                 e.preventDefault();
@@ -448,20 +452,12 @@
                 }
             }
         });
-
-        (function() {
-            const threshold = 160;
-            setInterval(function() {
-                if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
-                    document.body.innerHTML = "<div class='flex items-center justify-center min-h-screen text-center text-red-600 font-bold text-xl p-8 bg-white'>Akses Developer Tools dikesan. Halaman ini dilindungi.</div>";
-                }
-            }, 1000);
-        })();
     </script>
 
     <!-- SCRIPT LOGIK SISTEM -->
     <script>
         const GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8G0otFFWFImrtCIezcnNuotNwkXLRfxKsH9zmTP4r8zvmDl53z8dMcGlcTEG9Uy6I5g/exec";
+
 
         let dataMuridList = [];
         let aduanList = JSON.parse(localStorage.getItem('ecari_aduan_list')) || [];
@@ -505,7 +501,7 @@
 
                 const btn = document.getElementById(`btn-${t}`);
                 if (btn) {
-                    btn.classList.remove('bg-white/10');
+                    btn.classList.remove('bg-delima-lightBlue', 'shadow');
                     btn.classList.add('bg-white/10');
                 }
             });
@@ -658,7 +654,6 @@
             }
         }
 
-        // FUNGSI KEMASKINI DROPDOWN KELAS (DENGAN TINGKATAN & PPKI ASING)
         function kemaskiniDropdownKelas(idTingkatan = 'selectTingkatan', idKelas = 'selectKelas') {
             const tingkatanPilihan = document.getElementById(idTingkatan).value.trim();
             const selectKelas = document.getElementById(idKelas);
@@ -679,7 +674,6 @@
                         const valSheet = m.tingkatan.toString().trim().toLowerCase();
                         const valPilihan = tingkatanPilihan.toLowerCase();
 
-                        // Padanan Tepat Terus (Elak PPKI bertembung dengan Tingkatan Biasa)
                         return valSheet === valPilihan;
                     })
                     .map(m => m.kelas)
@@ -1083,7 +1077,6 @@
             }
         }
 
-        // FUNGSI PEMADAMAN DENGAN PENERIMAAN TERUS DI GOOGLE SHEETS
         async function padamAduan(index) {
             if (index !== -1 && aduanList[index]) {
                 if (confirm('Adakah anda pasti ingin memadam rekod aduan ini daripada sistem dan Google Sheets?')) {
